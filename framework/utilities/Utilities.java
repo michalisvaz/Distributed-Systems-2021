@@ -1,11 +1,18 @@
+package utilities;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Utilities{
 
+    // Broker port used for communication with Publishers and with Consumers
+    public static final int BROKER_PORT_TO_PUB = 7373;
+    public static final int BROKER_PORT_TO_CON = 1999;
+
     /**
      * Hashes a String and returns the result as a BigInteger
+     *
      * @param name input to hash
      * @return result of hashing
      */
@@ -22,6 +29,7 @@ public class Utilities{
     /**
      * Hashes the result of the concatenation of a String and an integer. 
      * The String corresponds to an IP address and the integer to a port number.
+     *
      * @param ip a String corresponding to the IP address.
      * @param port an integer corresponding to the port number.
      * @return result of hashing
@@ -33,6 +41,7 @@ public class Utilities{
 
     /**
      * Used for synchronization of regular prints
+     *
      * @param str the string to be print
      */
     public static synchronized void print(String str){
@@ -41,6 +50,7 @@ public class Utilities{
 
     /**
      * Used for synchronization of error prints
+     *
      * @param str the string to be print
      */
     public static synchronized void printError(String str){
