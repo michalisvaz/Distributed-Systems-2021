@@ -1,1 +1,5 @@
-# Project in Distributed Systems 2021
+# Project in Distributed Systems
+
+## Maybe usefull
+
+* xuggler (uncompress, modify, recompress media files (eg mp4 files))
