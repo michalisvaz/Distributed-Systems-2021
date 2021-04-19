@@ -18,6 +18,7 @@ public class VideoFileHandler {
      * @return a map where each filename is mapped to a VideoFile object
      */
     public static Map<String, VideoFile> readInfo(String directory, String channel, List<String> hashtags) {
+		return null;
 
     }
 
