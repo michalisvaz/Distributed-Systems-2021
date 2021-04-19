@@ -1,2 +1,10 @@
 
 .project
+bin/AppNodeMain.class
+bin/BrokerMain.class
+bin/components/Broker.class
+bin/components/Consumer.class
+bin/components/Publisher.class
+bin/utilities/Utilities.class
+bin/utilities/VideoFile.class
+bin/utilities/VideoFileHandler.class
