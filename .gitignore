@@ -8,3 +8,4 @@ bin/components/Publisher.class
 bin/utilities/Utilities.class
 bin/utilities/VideoFile.class
 bin/utilities/VideoFileHandler.class
+.classpath
