@@ -37,10 +37,10 @@ public class AppNodeMain {
 
     private static int menu() {
         System.out.println("---------- MENU ----------");
-        System.out.println("1\tUpload video");
-        System.out.println("2\tSearch video name");
-        System.out.println("3\tSearch creator");
-        System.out.println("4\tSearch hashtag");
+        System.out.println("1\tUpload videos");     // send all your videos to the Broker
+        System.out.println("2\tSearch video name"); // delete
+        System.out.println("3\tSearch creator");    // self explanatory
+        System.out.println("4\tSearch hashtag");    // self explanatory
         System.out.println("0\tExit App");
         System.out.println("--------------------------");
 
