@@ -43,7 +43,8 @@ public class Publisher {
 	public void connectPub() {
 
 		try {
-			pubSocket = new Socket(InetAddress.getByName("127.0.0.1"), brokerPort); 	//connects with broker to announce existance
+			pubSocket = new Socket(InetAddress.getByName("127.0.0.1"), brokerPort); // connects with broker to announce
+																					// existance
 
 			pubOutputStream = new ObjectOutputStream(pubSocket.getOutputStream());
 			pubInputStream = new ObjectInputStream(pubSocket.getInputStream());
@@ -55,15 +56,15 @@ public class Publisher {
 				pubOutputStream.writeObject(s); // then the hashtags
 				pubOutputStream.flush();
 			}
-			
-			//TODO:here we will send the chunks of the videos
-			
-			
+
+			// TODO:here we will send the chunks of the videos
+
 			pubInputStream.close();
 			pubOutputStream.close();
 			pubSocket.close();
-			
-			/* ------------------We won't use this probably-----------
+
+			/*
+			 * ------------------We won't use this probably-----------
 			 * 
 			 * pubServerSocket = new ServerSocket(port);
 			 * 

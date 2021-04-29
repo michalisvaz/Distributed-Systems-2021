@@ -17,6 +17,7 @@ public class Consumer {
 	ObjectOutputStream consOutputStream = null;
 	ObjectInputStream consInputStream = null;
 	private final int port, brokerPort;
+
 	/**
 	 * There will probably be more properties
 	 *
@@ -29,21 +30,20 @@ public class Consumer {
 		this.port = port;
 		this.brokerPort = Utilities.BROKER_PORT_TO_CON;
 	}
-	
+
 	public void connectCons(String inputWord) {
 		try {
-			consSocket = new Socket(InetAddress.getByName("127.0.0.1"), brokerPort); 	//connects with broker to announce existance
+			consSocket = new Socket(InetAddress.getByName("127.0.0.1"), brokerPort); // connects with broker to announce
+																						// existance
 
 			consOutputStream = new ObjectOutputStream(consSocket.getOutputStream());
 			consInputStream = new ObjectInputStream(consSocket.getInputStream());
-			
-			consOutputStream.writeObject(inputWord ); // consumer sends the searched word
+
+			consOutputStream.writeObject(inputWord); // consumer sends the searched word
 			consOutputStream.flush();
-			
-			
-			//TODO: here we get the video from the broker with the *consInputStream*
-			
-			
+
+			// TODO: here we get the video from the broker with the *consInputStream*
+
 			consInputStream.close();
 			consOutputStream.close();
 			consSocket.close();
@@ -52,11 +52,11 @@ public class Consumer {
 		}
 
 	}
-	
-	public String addHashtag(String inputWord) {		//we will call this when the user inputs a hashtag
+
+	public String addHashtag(String inputWord) { // we will call this when the user inputs a hashtag
 		inputWord = "#" + inputWord;
 		return inputWord;
-		
+
 	}
 
 	public String getIP() {
