@@ -8,50 +8,48 @@ import java.net.Socket;
 
 public class Broker {
 
-    private final int port;
-    ServerSocket brokerSocket;
-    Socket connection = null;
+	private final int port;
+	ServerSocket brokerSocket;
+	Socket connection = null;
 
-    /**
-     * There will be many more properties
-     *
-     * @param port broker's ip address
-     */
+	/**
+	 * There will be many more properties
+	 *
+	 * @param port broker's ip address
+	 */
 
-    public Broker(int port) {
-        this.port = port;
-    }
+	public Broker(int port) {
+		this.port = port;
+	}
 
+	public int getPort() {
+		return port;
+	}
 
-    public int getPort() {
-        return port;
-    }
+	public void openBroker() {
 
-    public void openBroker(){
+		try {
 
-        try {
+			brokerSocket = new ServerSocket(port);
 
-            brokerSocket = new ServerSocket(port);
+			while (true) {
+				connection = brokerSocket.accept();
 
-            while (true) {
-                connection = brokerSocket.accept();
+				Thread t = new ClientHandler(connection);
 
-                Thread t = new ClientHandler(connection);
+				t.start();
 
-                t.start();
+			}
+		} catch (IOException ioException) {
+			ioException.printStackTrace();
+		} finally {
+			try {
+				brokerSocket.close();
+			} catch (IOException ioException) {
+				ioException.printStackTrace();
+			}
+		}
 
-            }
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        } finally {
-            try {
-                brokerSocket.close();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
-        }
-
-
-    }
+	}
 
 }

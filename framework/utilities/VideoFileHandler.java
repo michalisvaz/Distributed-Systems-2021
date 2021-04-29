@@ -10,12 +10,13 @@ import java.util.HashMap;
 import java.util.List;
 
 public class VideoFileHandler {
-	
+
 	public static final int CHUNK_SIZE = 256 * 1024;
-	
+
 	/**
-	 * Read info about the mp4 files corresponding to a certain channel and/or certain hashtags
-	 * Name format for videos: "Dog catches ball; #dog #ball; channel1"
+	 * Read info about the mp4 files corresponding to a certain channel and/or
+	 * certain hashtags Name format for videos: "Dog catches ball; #dog #ball;
+	 * channel1"
 	 *
 	 * @param directory where the videos are stored
 	 * @param channel   only videos belonging to this channel should be read
@@ -61,7 +62,7 @@ public class VideoFileHandler {
 		}
 		return map;
 	}
-	
+
 	/**
 	 * Reads specified mp4 file
 	 *
@@ -100,12 +101,13 @@ public class VideoFileHandler {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Writes the VideoFile objects to directory folderName in separate mp4 files
 	 *
 	 * @param chunkList  the files to be written
-	 * @param folderName the subdirectory of the working directory were the files will be written
+	 * @param folderName the subdirectory of the working directory were the files
+	 *                   will be written
 	 * @return true if everything went well, false if there were problems
 	 */
 	public static boolean writeFiles(List<VideoFile> chunkList, String folderName) {
@@ -120,12 +122,13 @@ public class VideoFileHandler {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Writes the VideoFile object to directory folderName in a mp3 file
 	 *
 	 * @param video      the file to write
-	 * @param folderName the subdirectory of the working directory were the file will be written
+	 * @param folderName the subdirectory of the working directory were the file
+	 *                   will be written
 	 * @return true if everything went well, false if there were problems
 	 */
 	public static boolean writeFile(VideoFile video, String folderName) {
@@ -146,7 +149,7 @@ public class VideoFileHandler {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Splits a video to many chunks
 	 *
@@ -171,7 +174,7 @@ public class VideoFileHandler {
 		toReturn.add(temp);
 		return toReturn;
 	}
-	
+
 	/**
 	 * Merge many small videos (chunks) into one (larger) video
 	 *
@@ -195,5 +198,5 @@ public class VideoFileHandler {
 		res.setData(resData);
 		return res;
 	}
-	
+
 }

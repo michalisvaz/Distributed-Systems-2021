@@ -8,12 +8,12 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Utilities {
-	
+
 	// Broker port used for communication with Publishers and with Consumers
 	public static final int BROKER_PORT_TO_PUB = 7373;
 	public static final int BROKER_PORT_TO_CON = 1999;
 	public static final String videoFolder = "../Videos";
-	
+
 	/**
 	 * Hashes a String and returns the result as a BigInteger
 	 *
@@ -29,10 +29,10 @@ public class Utilities {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
-	 * Hashes the result of the concatenation of a String and an integer.
-	 * The String corresponds to an IP address and the integer to a port number.
+	 * Hashes the result of the concatenation of a String and an integer. The String
+	 * corresponds to an IP address and the integer to a port number.
 	 *
 	 * @param ip   a String corresponding to the IP address.
 	 * @param port an integer corresponding to the port number.
@@ -42,7 +42,7 @@ public class Utilities {
 		String name = ip + port;
 		return hash(name);
 	}
-	
+
 	/**
 	 * Used for synchronization of regular prints
 	 *
@@ -51,7 +51,7 @@ public class Utilities {
 	public static synchronized void print(String str) {
 		System.out.println(str);
 	}
-	
+
 	/**
 	 * Used for synchronization of error prints
 	 *
@@ -60,14 +60,14 @@ public class Utilities {
 	public static synchronized void printError(String str) {
 		System.err.println("ERROR: " + str);
 	}
-	
-	public static void print(HashMap<String, VideoFile> map){
+
+	public static void print(HashMap<String, VideoFile> map) {
 		Iterator it = map.entrySet().iterator();
 		while (it.hasNext()) {
-			Map.Entry pair = (Map.Entry)it.next();
+			Map.Entry pair = (Map.Entry) it.next();
 			System.out.println("File name: " + pair.getKey() + "\n" + pair.getValue().toString());
 			it.remove();
 		}
 	}
-	
+
 }

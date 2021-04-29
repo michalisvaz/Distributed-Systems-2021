@@ -1,12 +1,14 @@
 package components;
 
-import utilities.Utilities;
-
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import utilities.Utilities;
 
 public class Publisher {
 
@@ -38,35 +40,42 @@ public class Publisher {
 		}
 	}
 
-	public void connect() {
-		
-		
-		pubSocket = new Socket(InetAddress.getByName("127.0.0.1"), brokerPort);
-		
-		pubOutputStream = new ObjectOutputStream(pubSocket.getOutputStream()); 
-		pubInputStream = new ObjectInputStream(pubSocket.getInputStream());
-		
+	public void connectPub() {
+
 		try {
-			pubOutputStream.writeObject(channelName); //publisher sends first his name
+			pubSocket = new Socket(InetAddress.getByName("127.0.0.1"), brokerPort); 	//connects with broker to announce existance
+
+			pubOutputStream = new ObjectOutputStream(pubSocket.getOutputStream());
+			pubInputStream = new ObjectInputStream(pubSocket.getInputStream());
+
+			pubOutputStream.writeObject(channelName); // publisher sends first his name
 			pubOutputStream.flush();
-			
+
 			for (String s : hashtags) {
-				pubOutputStream.writeObject(s);		//then the hashtags
+				pubOutputStream.writeObject(s); // then the hashtags
 				pubOutputStream.flush();
 			}
+			
+			//TODO:here we will send the chunks of the videos
+			
+			
 			pubInputStream.close();
 			pubOutputStream.close();
 			pubSocket.close();
 			
-			pubServerSocket = new ServerSocket(port);
-			
-			while(true) {
-			pubSocket = pubServerSocket.accept();
-			
-			Thread t = new ClientHandler(pubSocket); //isws prepei allos handler gia publisher allos gia broker
-
-            t.start();
-			}
+			/* ------------------We won't use this probably-----------
+			 * 
+			 * pubServerSocket = new ServerSocket(port);
+			 * 
+			 * while (true) { pubSocket = pubServerSocket.accept();
+			 * 
+			 * Thread t = new ClientHandler(pubSocket); // isws prepei allos handler gia
+			 * publisher allos gia broker
+			 * 
+			 * t.start(); }
+			 */
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
