@@ -1,14 +1,16 @@
 package utilities;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VideoFile {
+public class VideoFile implements Serializable {
 
 	private String name, channel;
 	private List<String> hashtags;
 	private long size;
 	private byte[] data;
+	private boolean isFinal;
 
 	/**
 	 * There will be (many) more properties/variables for this object
@@ -18,7 +20,7 @@ public class VideoFile {
 	 * @param hashtags list of hashtags the video belongs to
 	 * @param size     the size of the videofile
 	 */
-	public VideoFile(String name, String channel, List<String> hashtags, long size) {
+	public VideoFile(String name, String channel, List<String> hashtags, long size, boolean isFinal) {
 		this.name = name;
 		this.channel = channel;
 		this.hashtags = new ArrayList<String>();
@@ -26,6 +28,7 @@ public class VideoFile {
 			this.hashtags.add(h);
 		}
 		this.size = size;
+		this.isFinal = isFinal;
 	}
 
 	public String getName() {
@@ -47,7 +50,11 @@ public class VideoFile {
 	public byte[] getData() {
 		return data;
 	}
-
+	
+	public boolean isFinal() {
+		return isFinal;
+	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}

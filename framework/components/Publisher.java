@@ -49,7 +49,7 @@ public class Publisher {
 			pubOutputStream = new ObjectOutputStream(pubSocket.getOutputStream());
 			pubInputStream = new ObjectInputStream(pubSocket.getInputStream());
 
-			pubOutputStream.writeObject(channelName); // publisher sends first his name
+			pubOutputStream.writeBytes(channelName);
 			pubOutputStream.flush();
 
 			for (String s : hashtags) {

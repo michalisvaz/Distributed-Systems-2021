@@ -8,29 +8,41 @@ import java.net.Socket;
 
 public class Broker {
 
-	private final int port;
+	private final int portToPublishers, portToConsumers;
+	private final String ip;
 	ServerSocket brokerSocket;
 	Socket connection = null;
-
+	
+	
 	/**
-	 * There will be many more properties
 	 *
-	 * @param port broker's ip address
+	 * @param ip
+	 * @param portToPublishers
+	 * @param portToConsumers
 	 */
-
-	public Broker(int port) {
-		this.port = port;
+	public Broker(String ip, int portToPublishers, int portToConsumers) {
+		this.ip = ip;
+		this.portToPublishers = portToPublishers;
+		this.portToConsumers = portToConsumers;
 	}
-
-	public int getPort() {
-		return port;
+	
+	public int getPortToPublishers() {
+		return portToPublishers;
 	}
-
+	
+	public int getPortToConsumers() {
+		return portToConsumers;
+	}
+	
+	public String getIp() {
+		return ip;
+	}
+	
 	public void openBroker() {
 
 		try {
 
-			brokerSocket = new ServerSocket(port);
+			brokerSocket = new ServerSocket(); // one for clients one for publishers
 
 			while (true) {
 				connection = brokerSocket.accept();

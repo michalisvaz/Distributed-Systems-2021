@@ -8,12 +8,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Utilities {
-
+	
 	// Broker port used for communication with Publishers and with Consumers
-	public static final int BROKER_PORT_TO_PUB = 7373;
-	public static final int BROKER_PORT_TO_CON = 1999;
 	public static final String videoFolder = "../Videos";
-
+	
 	/**
 	 * Hashes a String and returns the result as a BigInteger
 	 *
@@ -29,7 +27,7 @@ public class Utilities {
 			throw new RuntimeException(e);
 		}
 	}
-
+	
 	/**
 	 * Hashes the result of the concatenation of a String and an integer. The String
 	 * corresponds to an IP address and the integer to a port number.
@@ -42,7 +40,7 @@ public class Utilities {
 		String name = ip + port;
 		return hash(name);
 	}
-
+	
 	/**
 	 * Used for synchronization of regular prints
 	 *
@@ -51,7 +49,7 @@ public class Utilities {
 	public static synchronized void print(String str) {
 		System.out.println(str);
 	}
-
+	
 	/**
 	 * Used for synchronization of error prints
 	 *
@@ -60,7 +58,7 @@ public class Utilities {
 	public static synchronized void printError(String str) {
 		System.err.println("ERROR: " + str);
 	}
-
+	
 	public static void print(HashMap<String, VideoFile> map) {
 		Iterator it = map.entrySet().iterator();
 		while (it.hasNext()) {
@@ -69,5 +67,61 @@ public class Utilities {
 			it.remove();
 		}
 	}
-
+	
+	/**
+	 * Convert a string to a hashtag.
+	 * For example dog is converted to #dog
+	 * and #cat is converted to #cat
+	 *
+	 * @param inputWord the word to convert to a hashtag
+	 * @return the word converted to hashtag
+	 */
+	public static String addHashtag(String inputWord) {
+		inputWord = "#" + inputWord.replace("#", "");
+		return inputWord;
+	}
+	
+	/**
+	 * Checks whether given string is valid info to initialize a broker
+	 * @param line the string to check
+	 * @return true if string contains a valid IP and valid ports
+	 */
+	public static boolean checkBrokerInfo(String line) {
+		
+		line = line.trim();
+		String[] lparts = line.split(";");
+		if (lparts.length != 3) {
+			return false;
+		}
+		try {
+			int p1 = Integer.parseInt(lparts[1]);
+			int p2 = Integer.parseInt(lparts[1]);
+			if (p1 < 1024 || p2 < 1024) {
+				return false;
+			}
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		String IP = lparts[0];
+		String[] parts = IP.split(".");
+		if (parts.length != 4) {
+			return false;
+		}
+		for (String part : parts) {
+			try{
+				int value = Integer.parseInt(part);
+				if ((value < 0) || (value > 255)){
+					return false;
+				}
+			}catch (NumberFormatException e){
+				return false;
+			}
+		}
+		
+		if (IP.endsWith(".")){
+			return false;
+		}
+		return true;
+	}
+	
 }
