@@ -52,12 +52,15 @@ public class Publisher {
 			pubOutputStream.writeBytes(channelName);
 			pubOutputStream.flush();
 
-			for (String s : hashtags) {
-				pubOutputStream.writeObject(s); // then the hashtags
-				pubOutputStream.flush();
-			}
-
-			// TODO:here we will send the chunks of the videos
+			// see stella's init method and what it calls
+			// TODO: read the file
+			// TODO: hash the brokers and the hashtag
+			// TODO: send the chunks of the video to the correct broker
+			// List result = split
+//			for(x in result){
+//				send x
+//			}
+			
 
 			pubInputStream.close();
 			pubOutputStream.close();

@@ -33,7 +33,7 @@ public class AppNodeMain {
 					// TODO: we should probably care about the IPs
 					// and the ports to work from a distance *Pub*
 					publisher.connectPub();
-					// i guess after that, the switch gets you back to the menu?
+					publisher = null;
 					break; // break the switch
 				case 2:
 					System.out.println("Creator's name: ");
@@ -51,10 +51,14 @@ public class AppNodeMain {
 						flag2 = creator.equals(channelName);
 					}
 					consumer = new Consumer(null, 0, channelName);
+					// consumer init: tha pairnei poioi brokers exoyn ayto to channel name (1, 0, 2, 3)
+					// kai meta zita sth tyxh apo kapoion ap aytoyw ena video
+					// mporei kai mesa sthn connect
 					// TODO: we should probably care about the IPs and the ports to work
+					// TODO: close streams(here and elsewhere)
 					// from a distance *Cons*
 					consumer.connectCons(creator);
-					// i guess after that, the switch gets you back to the menu?
+					consumer = null;
 					break; // break the switch
 				case 3:
 					System.out.println("Hashtag: ");
@@ -63,9 +67,9 @@ public class AppNodeMain {
 					consumer = new Consumer(null, 0, channelName);
 					// TODO: we should probably care about the IPs and the ports to work
 					// from a distance *Cons*
+					// hash to hashtag kai zita apo ton antistoixo broker
 					consumer.connectCons(hashtag);
-					// string before it sends it
-					// i guess after that, the switch gets you back to the menu?
+					consumer = null;
 					break; // break the switch
 				default:
 					sc.close();
