@@ -74,7 +74,11 @@ public class VideoFile implements Serializable {
 	public void setData(byte[] data) {
 		this.data = data;
 	}
-
+	
+	public void setFinal(boolean aFinal) {
+		isFinal = aFinal;
+	}
+	
 	public String toString() {
 		String res = "Name: ";
 		res += this.name;

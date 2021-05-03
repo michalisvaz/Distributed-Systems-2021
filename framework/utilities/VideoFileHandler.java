@@ -10,20 +10,19 @@ import java.util.HashMap;
 import java.util.List;
 
 public class VideoFileHandler {
-
+	
 	public static final int CHUNK_SIZE = 256 * 1024;
-
+	
 	/**
 	 * Read info about the mp4 files corresponding to a certain channel and/or
 	 * certain hashtags Name format for videos: "Dog catches ball; #dog #ball;
 	 * channel1"
 	 *
 	 * @param directory where the videos are stored
-	 * @param channel   only videos belonging to this channel should be read
 	 * @param hashtag   only videos with this hashtag should be read
 	 * @return a map where each filename is mapped to a VideoFile object
 	 */
-	public static HashMap<String, VideoFile> readInfo(String directory, String channel, String hashtag) {
+	public static HashMap<String, VideoFile> readInfo(String directory, String hashtag) {
 		File dir = new File(directory);
 		if (!dir.isDirectory()) {
 			return null;
@@ -37,7 +36,7 @@ public class VideoFileHandler {
 			}
 			String fullName = fullNameWithSuffix.substring(0, fullNameWithSuffix.lastIndexOf('.'));
 			String[] parts = fullName.split(";");
-			if (parts.length != 3) {
+			if (parts.length != 2) {
 				Utilities.print("Wrong name format: " + fullName);
 				continue;
 			}
@@ -49,12 +48,10 @@ public class VideoFileHandler {
 					hts.add(tmp);
 				}
 			}
-			String chanel = parts[2].trim().toLowerCase();
 			long size = f.length();
-			boolean flag_channel = chanel.equalsIgnoreCase(channel) || channel.equals("any");
 			boolean flag_hashtag = hts.contains(hashtag.trim().toLowerCase().replace("#", "")) || hashtag.equals("any");
-			if (flag_channel && flag_hashtag) {
-				map.put(fullNameWithSuffix, new VideoFile(name, chanel, hts, size));
+			if (flag_hashtag) {
+				map.put(fullNameWithSuffix, new VideoFile(name, "None", hts, size, false));
 			}
 		}
 		if (map.isEmpty()) {
@@ -62,15 +59,16 @@ public class VideoFileHandler {
 		}
 		return map;
 	}
-
+	
 	/**
 	 * Reads specified mp4 file
 	 *
 	 * @param name the name of the file to be read
+	 * @param channel the channel for which the file is read
 	 * @return a VideoFile object representing the file read
 	 */
-	public static VideoFile readFile(String directory, String name) {
-		File file = new File(directory + "/" + name);
+	public static VideoFile readFile(String name, String channel) {
+		File file = new File(name);
 		if (!file.exists()) {
 			Utilities.printError("File not Found");
 			return null;
@@ -79,7 +77,7 @@ public class VideoFileHandler {
 			return null;
 		}
 		String[] parts = name.split(";");
-		if (parts.length != 3) {
+		if (parts.length != 2) {
 			Utilities.printError("Wrong name for file to read");
 			return null;
 		}
@@ -88,9 +86,8 @@ public class VideoFileHandler {
 		for (String ht : parts[1].split("#")) {
 			hts.add(ht.trim().toLowerCase());
 		}
-		String chanel = parts[2];
 		long size = file.length();
-		VideoFile videoFile = new VideoFile(videoName, chanel, hts, size);
+		VideoFile videoFile = new VideoFile(videoName, channel, hts, size, true);
 		try {
 			byte[] fileContent = Files.readAllBytes(file.toPath());
 			videoFile.setData(fileContent);
@@ -101,7 +98,7 @@ public class VideoFileHandler {
 			return null;
 		}
 	}
-
+	
 	/**
 	 * Writes the VideoFile objects to directory folderName in separate mp4 files
 	 *
@@ -122,7 +119,7 @@ public class VideoFileHandler {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Writes the VideoFile object to directory folderName in a mp3 file
 	 *
@@ -149,7 +146,7 @@ public class VideoFileHandler {
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Splits a video to many chunks
 	 *
@@ -164,17 +161,17 @@ public class VideoFileHandler {
 		}
 		for (int i = 0; i < n - 1; i++) {
 			String name = String.format("%03d", i) + video.getName();
-			VideoFile temp = new VideoFile(name, video.getChannel(), video.getHashtags(), CHUNK_SIZE);
+			VideoFile temp = new VideoFile(name, video.getChannel(), video.getHashtags(), CHUNK_SIZE, false);
 			temp.setData(Arrays.copyOfRange(video.getData(), i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE));
 			toReturn.add(temp);
 		}
 		String name = String.format("%03d", n - 1) + video.getName();
-		VideoFile temp = new VideoFile(name, video.getChannel(), video.getHashtags(), video.getSize() % CHUNK_SIZE);
+		VideoFile temp = new VideoFile(name, video.getChannel(), video.getHashtags(), video.getSize() % CHUNK_SIZE, true);
 		temp.setData(Arrays.copyOfRange(video.getData(), (n - 1) * CHUNK_SIZE, (int) (video.getSize())));
 		toReturn.add(temp);
 		return toReturn;
 	}
-
+	
 	/**
 	 * Merge many small videos (chunks) into one (larger) video
 	 *
@@ -194,9 +191,9 @@ public class VideoFileHandler {
 			cnt += vf.getSize();
 		}
 		VideoFile f = chunkList.get(0);
-		VideoFile res = new VideoFile(f.getName().substring(3), f.getChannel(), f.getHashtags(), f.getSize());
+		VideoFile res = new VideoFile(f.getName().substring(3), f.getChannel(), f.getHashtags(), f.getSize(), true);
 		res.setData(resData);
 		return res;
 	}
-
+	
 }

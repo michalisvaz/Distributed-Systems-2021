@@ -87,7 +87,6 @@ public class Utilities {
 	 * @return true if string contains a valid IP and valid ports
 	 */
 	public static boolean checkBrokerInfo(String line) {
-		
 		line = line.trim();
 		String[] lparts = line.split(";");
 		if (lparts.length != 3) {

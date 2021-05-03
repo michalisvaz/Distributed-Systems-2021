@@ -1,8 +1,7 @@
-
-// import java.io.BufferedReader;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import components.*;
@@ -13,9 +12,18 @@ public class AppNodeMain {
 	static Scanner sc = new Scanner(System.in);
 	static Publisher publisher = null;
 	static Consumer consumer = null;
+	static ArrayList<Broker> brokers = null;
 	
 	public static void main(String[] args) {
-		
+		if (args.length < 2) {
+			System.out.println("Give at least two cmd args. The file with the brokers info and " +
+					"the lines which correspond to the current brokers");
+			System.exit(-1);
+		}
+		brokers = initBrokerList(args);
+		if (brokers == null) {
+			System.exit(-1);
+		}
 		String channelName = null;
 		while (true) {
 			int input = menu();
@@ -29,10 +37,23 @@ public class AppNodeMain {
 							channelName = sc.nextLine();
 						}
 					}
-					publisher = new Publisher(null, channelName, 0, null);
-					// TODO: we should probably care about the IPs
-					// and the ports to work from a distance *Pub*
-					publisher.connectPub();
+					publisher = new Publisher(null, channelName, 0);
+					boolean pubInitFlag = publisher.init();
+					if (pubInitFlag){
+						publisher.readFile();
+						if (publisher.getCurrentVideo()==null) {
+							System.out.println("Video Upload cancelled");
+						}else {
+							boolean pubToBrokerSuccess = publisher.sendVideo();
+							if (pubToBrokerSuccess) {
+								System.out.println("Video successfully uploaded");
+							}else{
+								System.out.println("Problem in uploading video");
+							}
+						}
+					}else {
+						System.out.println("Publisher initialization failed");
+					}
 					publisher = null;
 					break; // break the switch
 				case 2:
@@ -78,6 +99,66 @@ public class AppNodeMain {
 		}
 	}
 	
+	private static ArrayList<Broker> initBrokerList(String[] args) {
+		String brokerFileName = args[0];
+		int[] linesWithBroker = new int[args.length - 1];
+		// Open file (with the necessary checks)
+		File file = new File(brokerFileName);
+		if (!file.exists()) {
+			Utilities.printError("File not Found");
+			return null;
+		} else if (file.isDirectory()) {
+			Utilities.printError("Directory instead of file");
+			return null;
+		}
+		Scanner input = null;
+		try {
+			input = new Scanner(file);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
+		// initialize and sort the linesWithBroker Array
+		for (int i = 1; i < args.length; i++) {
+			try{
+				linesWithBroker[i-1] = Integer.parseInt(args[i]);
+			}catch (NumberFormatException e){
+				System.out.println("Give only numbers for lines of the file");
+				return null;
+			}
+		}
+		Arrays.sort(linesWithBroker);
+		// fill the list with the brokers
+		ArrayList<Broker> brokersList = new ArrayList<Broker>();
+		int index = 0, cnt = 1;
+		while (input.hasNextLine()) {
+			String line = input.nextLine();
+			if(linesWithBroker[index] == cnt){
+				if (Utilities.checkBrokerInfo(line)) {
+					String[] parts = line.split(";");
+					String ip = parts[0];
+					int p1 = Integer.parseInt(parts[1]);
+					int p2 = Integer.parseInt(parts[2]);
+					Broker tmp = new Broker(ip, p1, p2);
+					brokersList.add(tmp);
+					index++;
+					if (index> linesWithBroker.length){
+						break;
+					}
+				}else {
+					System.out.println("Wrong line format at line " + cnt);
+					return null;
+				}
+			}
+			cnt++;
+		}
+		if(brokersList.isEmpty()){
+			System.out.println("No brokers found");
+			return null;
+		}
+		return brokersList;
+	}
+	
 	private static int menu() {
 		System.out.println("---------- MENU ----------");
 		System.out.println("1\tUpload videos"); // send all your videos to the Broker
@@ -88,7 +169,7 @@ public class AppNodeMain {
 		
 		System.out.print("Enter: ");
 		String userInput = sc.nextLine();
-		return userInput != null ? Integer.parseInt(userInput) : 0;        //TODO: if there are no videos, the user can't choose 2 or 3
+		return userInput != null ? Integer.parseInt(userInput) : 0;
 	}
 	
 }
