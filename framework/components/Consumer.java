@@ -3,20 +3,22 @@ package components;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
+import java.math.BigInteger;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import utilities.Utilities;
+import utilities.VideoFile;
 
 public class Consumer {
 	
-	private final String IP;
-	// broker port is the port on the Broker, which communicates with the Consumers
+	private String IP, brokerIP = null;
 	private String channelName; // whether user is registered or not. won't be used yet
 	Socket consSocket = null;
 	ObjectOutputStream consOutputStream = null;
 	ObjectInputStream consInputStream = null;
-	private final int port, brokerPort;
+	private int port, brokerPort =0;
+	// broker port is the port on the Broker, which communicates with the Consumers
 	
 	/**
 	 * There will probably be more properties
@@ -27,13 +29,33 @@ public class Consumer {
 	public Consumer(String IP, int port, String channelName) {
 		this.IP = IP;
 		this.port = port;
-		this.brokerPort = Utilities.BROKER_PORT_TO_CON;
 		this.channelName = channelName;
+	}
+	
+	public boolean init(ArrayList<Broker> brokers) {
+		if (brokers == null || brokers.isEmpty()) {
+			return false;
+		}
+		BigInteger myHash = Utilities.hash(channelName);
+		boolean found = false;
+		for (Broker broker : brokers) {
+			if (myHash.compareTo(broker.getHashValue()) < 0) {
+				this.brokerIP = broker.getIp();
+				this.brokerPort = broker.getPortToConsumers();
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			this.brokerIP = brokers.get(0).getIp();
+			this.brokerPort = brokers.get(0).getPortToConsumers();
+		}
+		return true;
 	}
 	
 	public void connectCons(String inputWord) {
 		try {
-			consSocket = new Socket(InetAddress.getByName("127.0.0.1"), brokerPort); // connects with broker to announce
+			consSocket = new Socket(brokerIP, brokerPort); // connects with broker to announce
 			// existance
 			
 			consOutputStream = new ObjectOutputStream(consSocket.getOutputStream());
@@ -46,17 +68,29 @@ public class Consumer {
 			consOutputStream.writeObject(byWho); // consumer sends his name so that Broker doesn't send his own videos back to the consumer
 			consOutputStream.flush();
 			
-			boolean foundFinalPiece = false;
-			while (!foundFinalPiece){
+			//edw mesa milaei me ton broker gia na kanei to init mallon
 			
-			}
-			// TODO: here we get the video from the broker with the *consInputStream*
+			
+			boolean foundFinalPiece = false;
+			ArrayList<VideoFile> chosenVid = null;
+			while (!foundFinalPiece){
+				try {
+					chosenVid.add((VideoFile) consInputStream.readObject()); //den eimai sigoyros an tha ginei me ayto ton tropo
+				} catch (ClassNotFoundException e) {
+					System.err.println("Problem with getting the video chunks");
+				}
+			} //here we get the video from the broker with the *consInputStream*
+			
+			
+			//TODO: we use the list to download the video with maiks methods
 			
 			consInputStream.close();
 			consOutputStream.close();
 			consSocket.close();
+			// return true;
 		} catch (IOException e) {
 			e.printStackTrace();
+			// return false;
 		}
 		
 	}

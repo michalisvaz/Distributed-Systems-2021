@@ -77,8 +77,8 @@ public class AppNodeMain {
 					// consumer init: tha pairnei poioi brokers exoyn ayto to channel name (1, 0, 2, 3)
 					// kai meta zita sth tyxh apo kapoion ap aytoyw ena video
 					// mporei kai mesa sthn connect
-					// TODO: we should probably care about the IPs and the ports to work
 					// TODO: close streams(here and elsewhere)
+					// TODO: we should probably care about the IPs and the ports to work
 					// from a distance *Cons*
 					consumer.connectCons(creator);
 					consumer = null;
@@ -102,6 +102,7 @@ public class AppNodeMain {
 	}
 	
 	// initialize brokers list
+	@SuppressWarnings("resource")
 	private static ArrayList<Broker> initBrokerList(String[] args) {
 		String brokerFileName = args[0];
 		int[] linesWithBroker = new int[args.length - 1];

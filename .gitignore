@@ -9,3 +9,6 @@ bin/utilities/Utilities.class
 bin/utilities/VideoFile.class
 bin/utilities/VideoFileHandler.class
 .classpath
+*.mp4
+*.class
+*.txt
