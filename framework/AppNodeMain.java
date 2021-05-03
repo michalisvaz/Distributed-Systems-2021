@@ -46,7 +46,7 @@ public class AppNodeMain {
 						if (publisher.getCurrentVideo()==null) {
 							System.out.println("Video Upload cancelled");
 						}else {
-							boolean pubToBrokerSuccess = publisher.sendVideo();
+							boolean pubToBrokerSuccess = publisher.push();
 							if (pubToBrokerSuccess) {
 								System.out.println("Video successfully uploaded");
 							}else{

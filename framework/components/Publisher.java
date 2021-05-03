@@ -72,6 +72,7 @@ public class Publisher {
 		String videoName = sc.nextLine();
 		if (videoName.equals("CANCEL")) {
 			currentVideo = null;
+			sc.close();
 			return;
 		}
 		currentVideo = VideoFileHandler.readFile(videoName, channelName);
@@ -81,13 +82,15 @@ public class Publisher {
 			videoName = sc.nextLine();
 			if (videoName.equals("CANCEL")) {
 				currentVideo = null;
+				sc.close();
 				return;
 			}
 			currentVideo = VideoFileHandler.readFile(videoName, channelName);
 		}
+		sc.close();
 	}
 	
-	public boolean sendVideo() {
+	public boolean push() {
 		
 		try {
 			pubSocket = new Socket(brokerIP, brokerPort);
