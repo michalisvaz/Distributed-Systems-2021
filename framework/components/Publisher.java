@@ -3,6 +3,7 @@ package components;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -15,15 +16,15 @@ import utilities.VideoFile;
 import utilities.VideoFileHandler;
 
 public class Publisher {
-
-	private final String IP, brokerIP = null;
+	
+	private String IP, brokerIP = null;
 	private String channelName;
 	Socket pubSocket = null;
 	ObjectOutputStream pubOutputStream = null;
 	ObjectInputStream pubInputStream = null;
-	private final int port, brokerPort = 0;
+	private int port, brokerPort = 0;
 	private VideoFile currentVideo = null;
-
+	
 	/**
 	 * Maybe more properties will be needed
 	 *
@@ -37,25 +38,48 @@ public class Publisher {
 		this.channelName = channelName;
 	}
 	
-	public boolean init(){
-		// TODO: initialize sockets, find to which broker you should send (by hashing)
+	/**
+	 * sets brokerIP and brokerPort
+	 *
+	 * @param brokers list of brokers. Assume it is sorted
+	 * @return true if everything went ok, false otherwise
+	 */
+	public boolean init(ArrayList<Broker> brokers) {
+		if (brokers == null || brokers.isEmpty()) {
+			return false;
+		}
+		BigInteger myHash = Utilities.hash(channelName);
+		boolean found = false;
+		for (Broker broker : brokers) {
+			if (myHash.compareTo(broker.getHashValue()) < 0) {
+				this.brokerIP = broker.getIp();
+				this.brokerPort = broker.getPortToPublishers();
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			this.brokerIP = brokers.get(0).getIp();
+			this.brokerPort = brokers.get(0).getPortToPublishers();
+		}
+		return true;
 	}
-
-	public void readFile(){
+	
+	public void readFile() {
 		currentVideo = null;
 		System.out.println("Give the name of the file you wish to upload");
 		Scanner sc = new Scanner(System.in);
 		String videoName = sc.nextLine();
-		if(videoName.equals("CANCEL")){
+		if (videoName.equals("CANCEL")) {
 			currentVideo = null;
 			return;
 		}
 		currentVideo = VideoFileHandler.readFile(videoName, channelName);
-		while (currentVideo == null){
+		while (currentVideo == null) {
 			System.out.println("Video no found. Try again. Type CANCEL to cancel your video upload.");
 			sc = new Scanner(System.in);
 			videoName = sc.nextLine();
-			if(videoName.equals("CANCEL")){
+			if (videoName.equals("CANCEL")) {
 				currentVideo = null;
 				return;
 			}
@@ -64,51 +88,33 @@ public class Publisher {
 	}
 	
 	public boolean sendVideo() {
-
+		
 		try {
-			pubSocket = new Socket(InetAddress.getByName("127.0.0.1"), brokerPort); // connects with broker to announce
-																					// existance
-
+			pubSocket = new Socket(brokerIP, brokerPort);
 			pubOutputStream = new ObjectOutputStream(pubSocket.getOutputStream());
 			pubInputStream = new ObjectInputStream(pubSocket.getInputStream());
 
-			pubOutputStream.writeBytes(channelName);
-			pubOutputStream.flush();
-
-			// see stella's init method and what it calls
+			// pubOutputStream.writeBytes(channelName);
+			// pubOutputStream.flush();
 			
-			// TODO: send the chunks of the video to the correct broker
-			// List result = split
-//			for(x in result){
-//				send x
-//			}
-			
-
+			ArrayList<VideoFile> result = VideoFileHandler.split(currentVideo);
+			for (VideoFile x : result) {
+				pubOutputStream.writeObject(x);
+			}
 			pubInputStream.close();
 			pubOutputStream.close();
 			pubSocket.close();
-
-			/*
-			 * ------------------We won't use this probably-----------
-			 * 
-			 * pubServerSocket = new ServerSocket(port);
-			 * 
-			 * while (true) { pubSocket = pubServerSocket.accept();
-			 * 
-			 * Thread t = new ClientHandler(pubSocket); // isws prepei allos handler gia
-			 * publisher allos gia broker
-			 * 
-			 * t.start(); }
-			 */
+			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
+			return false;
 		}
 	}
-
+	
 	public String getIP() {
 		return IP;
 	}
-
+	
 	public String getChannelName() {
 		return channelName;
 	}
@@ -116,7 +122,7 @@ public class Publisher {
 	public int getPort() {
 		return port;
 	}
-
+	
 	public void getBrokerList() {
 	
 	}
@@ -128,5 +134,5 @@ public class Publisher {
 	public void setChannelName(String channelName) {
 		this.channelName = channelName;
 	}
-
+	
 }

@@ -1,18 +1,21 @@
 package components;
 
+import utilities.Utilities;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Broker {
+public class Broker implements Comparable<Broker> {
 
 	private final int portToPublishers, portToConsumers;
 	private final String ip;
 	ServerSocket brokerSocket;
 	Socket connection = null;
-	
+	BigInteger hashValue = null;
 	
 	/**
 	 *
@@ -24,6 +27,7 @@ public class Broker {
 		this.ip = ip;
 		this.portToPublishers = portToPublishers;
 		this.portToConsumers = portToConsumers;
+		this.hashValue = Utilities.hash(this.ip, this.portToPublishers);
 	}
 	
 	public int getPortToPublishers() {
@@ -36,6 +40,10 @@ public class Broker {
 	
 	public String getIp() {
 		return ip;
+	}
+	
+	public BigInteger getHashValue() {
+		return hashValue;
 	}
 	
 	public void openBroker() {
@@ -63,5 +71,9 @@ public class Broker {
 		}
 
 	}
-
+	
+	@Override
+	public int compareTo(Broker o) {
+		return this.hashValue.compareTo(o.getHashValue());
+	}
 }

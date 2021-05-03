@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Scanner;
 
 import components.*;
@@ -21,6 +22,7 @@ public class AppNodeMain {
 			System.exit(-1);
 		}
 		brokers = initBrokerList(args);
+		Collections.sort(brokers);
 		if (brokers == null) {
 			System.exit(-1);
 		}
@@ -38,7 +40,7 @@ public class AppNodeMain {
 						}
 					}
 					publisher = new Publisher(null, channelName, 0);
-					boolean pubInitFlag = publisher.init();
+					boolean pubInitFlag = publisher.init(brokers);
 					if (pubInitFlag){
 						publisher.readFile();
 						if (publisher.getCurrentVideo()==null) {
