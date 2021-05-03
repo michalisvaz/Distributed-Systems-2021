@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 import components.*;
-import utilities.Utilities;
+import utilities.*;
 
 public class AppNodeMain {
 	
