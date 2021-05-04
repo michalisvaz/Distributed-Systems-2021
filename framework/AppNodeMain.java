@@ -74,12 +74,17 @@ public class AppNodeMain {
 						flag2 = creator.equals(channelName);
 					}
 					consumer = new Consumer(null, 0, channelName);
-					// consumer init: tha pairnei poioi brokers exoyn ayto to channel name (1, 0, 2, 3)
-					// kai meta zita sth tyxh apo kapoion ap aytoyw ena video
-					// mporei kai mesa sthn connect
-					// TODO: close streams(here and elsewhere)
-					// TODO: we should probably care about the IPs and the ports to work
-					// from a distance *Cons*
+					boolean foundResponsibleBroker = consumer.findBroker(brokers, creator);
+					if (foundResponsibleBroker){
+						boolean foundVideo = consumer.getByChannel(creator);
+						if (foundVideo){
+							consumer.writeVideoFile();
+						}else {
+							System.out.println("Couldn't find requested video");
+						}
+					}else {
+						System.out.println("Couldn't locate responsible broker");
+					}
 					consumer.connectCons(creator);
 					consumer = null;
 					break; // break the switch

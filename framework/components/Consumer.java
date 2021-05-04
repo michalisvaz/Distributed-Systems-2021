@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import utilities.Utilities;
 import utilities.VideoFile;
+import utilities.VideoFileHandler;
 
 public class Consumer {
 	
@@ -17,7 +18,8 @@ public class Consumer {
 	Socket consSocket = null;
 	ObjectOutputStream consOutputStream = null;
 	ObjectInputStream consInputStream = null;
-	private int port, brokerPort =0;
+	private int port, brokerPort = 0;
+	VideoFile takenVideo;
 	// broker port is the port on the Broker, which communicates with the Consumers
 	
 	/**
@@ -32,14 +34,14 @@ public class Consumer {
 		this.channelName = channelName;
 	}
 	
-	public boolean init(ArrayList<Broker> brokers) {
+	public boolean findBroker(ArrayList<Broker> brokers, String creator) {
 		if (brokers == null || brokers.isEmpty()) {
 			return false;
 		}
-		BigInteger myHash = Utilities.hash(channelName);
+		BigInteger creatorsHash = Utilities.hash(creator);
 		boolean found = false;
 		for (Broker broker : brokers) {
-			if (myHash.compareTo(broker.getHashValue()) < 0) {
+			if (creatorsHash.compareTo(broker.getHashValue()) < 0) {
 				this.brokerIP = broker.getIp();
 				this.brokerPort = broker.getPortToConsumers();
 				found = true;
@@ -51,6 +53,17 @@ public class Consumer {
 			this.brokerPort = brokers.get(0).getPortToConsumers();
 		}
 		return true;
+	}
+	
+	public boolean getByChannel(String creator){
+		// TODO: send creator to Broker (we know which, see brokerIP, brokerPort)
+		// TODO: and get a List of VideoFiles, merge them (into takenVideo) and return true
+		//  or get a VideoFile with name "EMPTY" and return false
+		//  (if no videos from this channel are available)
+	}
+	
+	public void writeVideoFile() {
+		VideoFileHandler.writeFile(takenVideo, "Consumer" + IP + port)
 	}
 	
 	public void connectCons(String inputWord) {
@@ -73,7 +86,7 @@ public class Consumer {
 			
 			boolean foundFinalPiece = false;
 			ArrayList<VideoFile> chosenVid = null;
-			while (!foundFinalPiece){
+			while (!foundFinalPiece) {
 				try {
 					chosenVid.add((VideoFile) consInputStream.readObject()); //den eimai sigoyros an tha ginei me ayto ton tropo
 				} catch (ClassNotFoundException e) {
