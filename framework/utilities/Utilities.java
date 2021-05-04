@@ -102,7 +102,7 @@ public class Utilities {
 			return false;
 		}
 		String IP = lparts[0];
-		String[] parts = IP.split(".");
+		String[] parts = IP.split("\\.");
 		if (parts.length != 4) {
 			return false;
 		}
@@ -116,7 +116,6 @@ public class Utilities {
 				return false;
 			}
 		}
-		
 		if (IP.endsWith(".")){
 			return false;
 		}

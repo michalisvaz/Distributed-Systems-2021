@@ -95,7 +95,6 @@ public class AppNodeMain {
 					consumer = null;
 					break; // break the switch
 				default:
-					sc.close();
 					System.exit(0);
 			}
 		}
@@ -146,7 +145,7 @@ public class AppNodeMain {
 					Broker tmp = new Broker(ip, p1, p2);
 					brokersList.add(tmp);
 					index++;
-					if (index> linesWithBroker.length){
+					if (index >= linesWithBroker.length){
 						break;
 					}
 				}else {

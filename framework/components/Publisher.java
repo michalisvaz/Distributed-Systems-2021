@@ -1,16 +1,15 @@
 package components;
 
+import utilities.Utilities;
+import utilities.VideoFile;
+import utilities.VideoFileHandler;
+
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
-
-import utilities.Utilities;
-import utilities.VideoFile;
-import utilities.VideoFileHandler;
 
 public class Publisher {
 	
@@ -18,7 +17,6 @@ public class Publisher {
 	private String channelName;
 	Socket pubSocket = null;
 	ObjectOutputStream pubOutputStream = null;
-	ObjectInputStream pubInputStream = null;
 	private int port, brokerPort = 0;
 	private VideoFile currentVideo = null;
 	
@@ -69,7 +67,6 @@ public class Publisher {
 		String videoName = sc.nextLine();
 		if (videoName.equals("CANCEL")) {
 			currentVideo = null;
-			sc.close();
 			return;
 		}
 		currentVideo = VideoFileHandler.readFile(videoName, channelName);
@@ -79,29 +76,23 @@ public class Publisher {
 			videoName = sc.nextLine();
 			if (videoName.equals("CANCEL")) {
 				currentVideo = null;
-				sc.close();
 				return;
 			}
 			currentVideo = VideoFileHandler.readFile(videoName, channelName);
 		}
-		sc.close();
 	}
 	
 	public boolean push() {
 		
 		try {
+//			System.out.println("Broker Ip: " + brokerIP + " broker port: " + brokerPort);
 			pubSocket = new Socket(brokerIP, brokerPort);
 			pubOutputStream = new ObjectOutputStream(pubSocket.getOutputStream());
-			pubInputStream = new ObjectInputStream(pubSocket.getInputStream());
-
-			// pubOutputStream.writeBytes(channelName);
-			// pubOutputStream.flush();
 			
 			ArrayList<VideoFile> result = VideoFileHandler.split(currentVideo);
 			for (VideoFile x : result) {
 				pubOutputStream.writeObject(x);
 			}
-			pubInputStream.close();
 			pubOutputStream.close();
 			pubSocket.close();
 			return true;

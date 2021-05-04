@@ -63,7 +63,7 @@ public class VideoFileHandler {
 	/**
 	 * Reads specified mp4 file
 	 *
-	 * @param name the name of the file to be read
+	 * @param name    the name of the file to be read
 	 * @param channel the channel for which the file is read
 	 * @return a VideoFile object representing the file read
 	 */
@@ -76,6 +76,7 @@ public class VideoFileHandler {
 			Utilities.printError("Directory instead of file");
 			return null;
 		}
+		name = file.getName();
 		String[] parts = name.split(";");
 		if (parts.length != 2) {
 			Utilities.printError("Wrong name for file to read");

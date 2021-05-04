@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VideoFile implements Serializable {
-
+	
 	private String name, channel;
 	private List<String> hashtags;
 	private long size;
 	private byte[] data;
 	private boolean isFinal;
-
+	
 	/**
 	 * There will be (many) more properties/variables for this object
 	 *
@@ -30,23 +30,23 @@ public class VideoFile implements Serializable {
 		this.size = size;
 		this.isFinal = isFinal;
 	}
-
+	
 	public String getName() {
 		return name;
 	}
-
+	
 	public String getChannel() {
 		return channel;
 	}
-
+	
 	public List<String> getHashtags() {
 		return hashtags;
 	}
-
+	
 	public long getSize() {
 		return size;
 	}
-
+	
 	public byte[] getData() {
 		return data;
 	}
@@ -58,19 +58,19 @@ public class VideoFile implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	
 	public void setChannel(String channel) {
 		this.channel = channel;
 	}
-
+	
 	public void setHashtags(List<String> hashtags) {
 		this.hashtags = hashtags;
 	}
-
+	
 	public void setSize(long size) {
 		this.size = size;
 	}
-
+	
 	public void setData(byte[] data) {
 		this.data = data;
 	}
@@ -94,5 +94,5 @@ public class VideoFile implements Serializable {
 		res += "\n";
 		return res;
 	}
-
+	
 }
