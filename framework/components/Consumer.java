@@ -55,9 +55,7 @@ public class Consumer {
 		return true;
 	}
 	
-	public boolean getByChannel(String creator){
-		
-		
+	public boolean getByChannel(String creator) {
 		return connectCons(creator);
 		// TODO: send creator to Broker (we know which, see brokerIP, brokerPort)
 		// TODO: and get a List of VideoFiles, merge them (into takenVideo) and return true
@@ -88,14 +86,14 @@ public class Consumer {
 			
 			
 			boolean foundFinalPiece = false;
-			ArrayList<VideoFile> chosenVid = null;
+			ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
 			while (!foundFinalPiece) {
 				try {//here we get the video from the broker with the *consInputStream*
 					chosenVid.add((VideoFile) consInputStream.readObject()); //den eimai sigoyros an tha ginei me ayto ton tropo
 				} catch (ClassNotFoundException e) {
 					System.err.println("Problem with getting the video chunks");
 				}
-			} 
+			}
 			//pws kanoume ti lista se ena video merge
 			//TODO: we use the list to download the video with maiks methods
 			
@@ -104,10 +102,10 @@ public class Consumer {
 			consInputStream.close();
 			consOutputStream.close();
 			consSocket.close();
-			 return true;
+			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
-			 return false;
+			return false;
 		}
 		
 	}
