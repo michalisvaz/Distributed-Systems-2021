@@ -56,18 +56,6 @@ public class Consumer {
 	}
 	
 	public boolean getByChannel(String creator) {
-		return connectCons(creator);
-		// TODO: send creator to Broker (we know which, see brokerIP, brokerPort)
-		// TODO: and get a List of VideoFiles, merge them (into takenVideo) and return true
-		//  or get a VideoFile with name "EMPTY" and return false
-		//  (if no videos from this channel are available)
-	}
-	
-	public void writeVideoFile() {
-		VideoFileHandler.writeFile(takenVideo, "Consumer" + IP + port);
-	}
-	
-	public boolean connectCons(String inputWord) {
 		try {
 			consSocket = new Socket(brokerIP, brokerPort); // connects with broker to announce
 			// existance
@@ -75,7 +63,7 @@ public class Consumer {
 			consOutputStream = new ObjectOutputStream(consSocket.getOutputStream());
 			consInputStream = new ObjectInputStream(consSocket.getInputStream());
 			
-			String searchedWord = "in:" + inputWord;
+			String searchedWord = "in:" + creator;
 			String byWho = "by:" + (channelName == null ? "" : channelName);
 			
 			consOutputStream.writeObject(searchedWord); // consumer sends the searched word
@@ -110,6 +98,56 @@ public class Consumer {
 		
 	}
 	
+	public boolean getByHashtag(String hashtag) {
+		
+		try {
+			//prepei na stelnei se pollous brokers ara Multithreaded
+			consSocket = new Socket(brokerIP, brokerPort); // connects with brokers to announce
+			// existance
+			
+			consOutputStream = new ObjectOutputStream(consSocket.getOutputStream());
+			consInputStream = new ObjectInputStream(consSocket.getInputStream());
+			
+			String searchedWord = "in:" + hashtag;
+			String byWho = "by:" + (channelName == null ? "" : channelName);
+			
+			consOutputStream.writeObject(searchedWord); // consumer sends the searched word
+			consOutputStream.writeObject(byWho); // consumer sends his name so that Broker doesn't send his own videos back to the consumer
+			consOutputStream.flush();
+			
+			//edw mesa milaei me ton broker gia na kanei to init mallon
+			
+			
+			
+			boolean foundFinalPiece = false;
+			ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
+			while (!foundFinalPiece) {
+				try {//here we get the video from the broker with the *consInputStream*
+					chosenVid.add((VideoFile) consInputStream.readObject()); //den eimai sigoyros an tha ginei me ayto ton tropo
+				} catch (ClassNotFoundException e) {
+					System.err.println("Problem with getting the video chunks");
+				}
+			}
+			//pws kanoume ti lista se ena video merge
+			//TODO: we use the list to download the video with maiks methods
+			
+			takenVideo = VideoFileHandler.merge(chosenVid);
+			
+			consInputStream.close();
+			consOutputStream.close();
+			consSocket.close();
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+	}
+	
+	public void writeVideoFile() {
+		VideoFileHandler.writeFile(takenVideo, "Consumer" + IP + port);
+	}
+
 	public String getIP() {
 		return IP;
 	}
