@@ -9,10 +9,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Vector;
+import java.util.*;
 
 public class Broker implements Comparable<Broker> {
 	
@@ -193,23 +190,44 @@ public class Broker implements Comparable<Broker> {
 				String byWho = oins.readUTF();
 				if (searchedWord.charAt(3) == '#') {
 					int cnt = 0;
-					String hashtag = searchedWord.replace("#", "").replace("in:", "");
-					String clientName = byWho.replace("by:", "");
+					String hashtag = searchedWord.replace("#", "").replace("in:", "").toLowerCase().trim();
+					String clientName = byWho.replace("by:", "").trim();
 					for (VideoFile vf : videoFiles.values()) {
-						if (vf.getHashtags().contains(hashtag) && !vf.getChannel().equals(clientName)) {
+						if (vf.getHashtags().contains(hashtag) && !vf.getChannel().trim().equals(clientName)) {
 							cnt += 1;
 						}
 					}
 					oouts.writeInt(cnt);
 					oouts.flush();
-					if (cnt != 0) {
-					
+					// TODO: read whether you should send or not. If yes send, otherwise don't
+					boolean shouldISend = oins.readBoolean();
+					if (shouldISend) {
+						int indexToSend = new Random().nextInt(cnt);
+						VideoFile toSend = null;
+						for (VideoFile vf : videoFiles.values()) {
+							if (vf.getHashtags().contains(hashtag) && !vf.getChannel().trim().equals(clientName)) {
+								if (indexToSend == 0) {
+									toSend = vf;
+									break;
+								} else {
+									indexToSend -= 1;
+								}
+							}
+						}
+						String directory = System.getProperty("user.dir") + "/Broker" + ip + portToPublishers
+								+ portToConsumers + "/";
+						toSend = VideoFileHandler.readFile(directory + toSend.getName(), toSend.getChannel());
+						ArrayList<VideoFile> result = VideoFileHandler.split(toSend);
+						for (VideoFile x : result) {
+							oouts.writeObject(x);
+							oouts.flush();
+						}
 					}
 					oouts.close();
 					socket.close();
 				} else {
 					ArrayList<VideoFile> maybeToSend = new ArrayList<>();
-					String requestedChannel = searchedWord.replace("in:", "");
+					String requestedChannel = searchedWord.replace("in:", "").toLowerCase();
 					for (VideoFile vf : videoFiles.values()) {
 						if (vf.getChannel().trim().equalsIgnoreCase(requestedChannel.trim())) {
 							maybeToSend.add(vf);

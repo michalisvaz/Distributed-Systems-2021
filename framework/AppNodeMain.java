@@ -62,7 +62,7 @@ public class AppNodeMain {
 					break; // break the switch
 				case 2:
 					if(folderName==null && channelName!=null) {
-						System.out.println("Give folder in which I will save the videos you got: ");
+						System.out.println("Give folder in which I will save the videos you will get: ");
 						folderName = sc.nextLine();
 					}else {
 						folderName = "Consumer" + channelName;
@@ -99,7 +99,7 @@ public class AppNodeMain {
 					break; // break the switch
 				case 3:
 					if(folderName==null && channelName!=null) {
-						System.out.println("Give folder in which I will save the videos you got: ");
+						System.out.println("Give folder in which I will save the videos you will get: ");
 						folderName = sc.nextLine();
 					}else {
 						folderName = "Consumer" + channelName;
@@ -108,11 +108,11 @@ public class AppNodeMain {
 					String hashtag = sc.nextLine();
 					hashtag = Utilities.addHashtag(hashtag);
 					consumer = new Consumer(null, 0, channelName);
-					boolean foundVideo = consumer.getByHashtag(hashtag);
+					boolean foundVideo = consumer.getByHashtag(hashtag, brokers);
 					if (foundVideo) {
 						consumer.writeVideoFile(folderName);
 					} else {
-						System.out.println("Couldn't find requested video");
+						System.out.println("Couldn't find videos with the requested hashtag");
 					}
 					consumer = null;
 					break; // break the switch

@@ -93,11 +93,9 @@ public class Consumer {
 			e.printStackTrace();
 			return false;
 		}
-		
 	}
 	
-	public boolean getByHashtag(String hashtag) {
-		
+	public boolean getByHashtag(String hashtag, ArrayList<Broker> brokers) {
 		try {
 			//prepei na stelnei se pollous brokers ara Multithreaded
 			consSocket = new Socket(brokerIP, brokerPort); // connects with brokers to announce
@@ -114,7 +112,7 @@ public class Consumer {
 			consOutputStream.flush();
 			
 			//edw mesa milaei me ton broker gia na kanei to init mallon
-			
+			// TODO: get the list with brokers and number of videos with the requested hashtag
 			
 			boolean foundFinalPiece = false;
 			ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
@@ -125,20 +123,16 @@ public class Consumer {
 					System.err.println("Problem with getting the video chunks");
 				}
 			}
-			//pws kanoume ti lista se ena video merge
-			//TODO: we use the list to download the video with maiks methods
-			
-			takenVideo = VideoFileHandler.merge(chosenVid);
-			
+		
 			consInputStream.close();
 			consOutputStream.close();
 			consSocket.close();
+			takenVideo = VideoFileHandler.merge(chosenVid);
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
 		}
-		
 	}
 	
 	public void writeVideoFile(String folderName) {
