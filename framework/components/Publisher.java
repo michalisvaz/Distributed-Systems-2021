@@ -92,6 +92,7 @@ public class Publisher {
 			ArrayList<VideoFile> result = VideoFileHandler.split(currentVideo);
 			for (VideoFile x : result) {
 				pubOutputStream.writeObject(x);
+				pubOutputStream.flush();
 			}
 			pubOutputStream.close();
 			pubSocket.close();

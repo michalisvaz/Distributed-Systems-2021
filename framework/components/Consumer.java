@@ -77,19 +77,21 @@ public class Consumer {
 			ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
 			while (!foundFinalPiece) {
 				try {//here we get the video from the broker with the *consInputStream*
-					chosenVid.add((VideoFile) consInputStream.readObject()); //den eimai sigoyros an tha ginei me ayto ton tropo
+					VideoFile current = (VideoFile) consInputStream.readObject();
+					chosenVid.add(current);
+					foundFinalPiece = current.isFinal();
 				} catch (ClassNotFoundException e) {
 					System.err.println("Problem with getting the video chunks");
+					return false;
 				}
 			}
-			//pws kanoume ti lista se ena video merge
-			//TODO: we use the list to download the video with maiks methods
-			
-			takenVideo = VideoFileHandler.merge(chosenVid);
-			
 			consInputStream.close();
 			consOutputStream.close();
 			consSocket.close();
+			if (chosenVid.get(0).getName().equals("EMPTY")) {
+				return false;
+			}
+			takenVideo = VideoFileHandler.merge(chosenVid);
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -116,7 +118,6 @@ public class Consumer {
 			consOutputStream.flush();
 			
 			//edw mesa milaei me ton broker gia na kanei to init mallon
-			
 			
 			
 			boolean foundFinalPiece = false;
@@ -147,7 +148,7 @@ public class Consumer {
 	public void writeVideoFile() {
 		VideoFileHandler.writeFile(takenVideo, "Consumer" + IP + port);
 	}
-
+	
 	public String getIP() {
 		return IP;
 	}

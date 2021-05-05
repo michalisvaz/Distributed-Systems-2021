@@ -4,15 +4,14 @@ import utilities.Utilities;
 import utilities.VideoFile;
 import utilities.VideoFileHandler;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Vector;
 
 public class Broker implements Comparable<Broker> {
@@ -23,6 +22,7 @@ public class Broker implements Comparable<Broker> {
 	Socket connection = null;
 	BigInteger hashValue;
 	private Vector<ToPublisherThread> publishers;
+	private Vector<ToConsumerThread> consumers;
 	private HashMap<String, VideoFile> videoFiles;
 	
 	/**
@@ -36,6 +36,7 @@ public class Broker implements Comparable<Broker> {
 		this.portToConsumers = portToConsumers;
 		this.hashValue = Utilities.hash(this.ip, this.portToPublishers);
 		this.publishers = new Vector<ToPublisherThread>();
+		this.consumers = new Vector<ToConsumerThread>();
 		this.videoFiles = new HashMap<String, VideoFile>();
 	}
 	
@@ -78,10 +79,10 @@ public class Broker implements Comparable<Broker> {
 	public void runBroker() {
 		System.out.println("Running Broker with ip " + ip + " and ports " + portToPublishers + ", " + portToConsumers);
 		receiveData();
+		sendData();
 	}
 	
 	private void receiveData() {
-		
 		new Thread("Data-receiving Thread") {
 			@Override
 			public void run() {
@@ -103,7 +104,6 @@ public class Broker implements Comparable<Broker> {
 				}
 			}
 		}.start();
-		
 	}
 	
 	private class ToPublisherThread extends Thread {
@@ -133,15 +133,93 @@ public class Broker implements Comparable<Broker> {
 				}
 				VideoFile res = VideoFileHandler.merge(chunks);
 				synchronized (videoFiles) {
-					videoFiles.put(res.getName(), res);
 					VideoFileHandler.writeFile(res, System.getProperty("user.dir") + "/Broker" + getIp() +
 							getPortToPublishers() + getPortToConsumers());
+					res.setData(null);
+					videoFiles.put(res.getName(), res);
 				}
 				System.out.println("Successfully merged and saved file");
 			} catch (IOException | ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void sendData(){
+		new Thread("Data-sending Thread") {
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						InetAddress addr = InetAddress.getByName(ip);
+						brokerSocketToConsumers = new ServerSocket(portToConsumers, 50, addr);
+						Socket socket = brokerSocketToConsumers.accept();
+						ToConsumerThread newConsumer = new ToConsumerThread(socket);
+						newConsumer.start();
+						synchronized (consumers) {
+							consumers.addElement(newConsumer);
+						}
+						brokerSocketToConsumers.close();
+					} catch (IOException e) {
+						System.out.println("Failed to establish consumer-broker connection");
+						// e.printStackTrace();
+					}
+				}
+			}
+		}.start();
+	}
+	
+	private class ToConsumerThread extends Thread{
+		public Socket socket;
+		private ObjectInputStream oins;
+		private ObjectOutputStream oouts;
+		
+		public ToConsumerThread(Socket socket) {
+			this.socket = socket;
+			try {
+				InputStream is = socket.getInputStream();
+				oins = new ObjectInputStream(is);
+				OutputStream os = socket.getOutputStream();
+				oouts = new ObjectOutputStream(os);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		@Override
+		public void run(){
+			try {
+				String searchedWord = oins.readUTF();
+				String byWho = oins.readUTF();
+				if (searchedWord.charAt(3) == '#'){
+				
+				}else{
+					ArrayList<VideoFile> maybeToSend = new ArrayList<>();
+					for (VideoFile vf: videoFiles.values()){
+						if (vf.getChannel().trim().equalsIgnoreCase(searchedWord.trim())){
+							maybeToSend.add(vf);
+						}
+					}
+					if (maybeToSend.isEmpty()){
+						VideoFile toSend = new VideoFile("EMPTY", null, new ArrayList<>(), 0, true);
+						oouts.writeObject(toSend);
+					}else{
+						int randIndex = new Random().nextInt(maybeToSend.size());
+						VideoFile toSend = maybeToSend.get(randIndex);
+						ArrayList<VideoFile> result = VideoFileHandler.split(toSend);
+						for (VideoFile x : result) {
+							oouts.writeObject(x);
+							oouts.flush();
+						}
+						oouts.close();
+						socket.close();
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
 	
 	@Override

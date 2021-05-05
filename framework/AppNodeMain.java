@@ -93,17 +93,12 @@ public class AppNodeMain {
 				String hashtag = sc.nextLine();
 				hashtag = Utilities.addHashtag(hashtag);
 				consumer = new Consumer(null, 0, channelName);
-				// TODO: we should probably care about the IPs and the ports to work
-				// from a distance *Cons*
-				// hash to hashtag kai zita apo ton antistoixo broker
-
-				boolean foundVideo = consumer.connectCons(hashtag);
+				boolean foundVideo = consumer.getByHashtag(hashtag);
 				if (foundVideo) {
 					consumer.writeVideoFile();
 				} else {
 					System.out.println("Couldn't find requested video");
 				}
-//					consumer.connectCons(hashtag);
 				consumer = null;
 				break; // break the switch
 			default:
@@ -113,7 +108,6 @@ public class AppNodeMain {
 	}
 
 	// initialize brokers list
-	@SuppressWarnings("resource")
 	private static ArrayList<Broker> initBrokerList(String[] args) {
 		String brokerFileName = args[0];
 		int[] linesWithBroker = new int[args.length - 1];
