@@ -66,13 +66,9 @@ public class Consumer {
 			String searchedWord = "in:" + creator;
 			String byWho = "by:" + (channelName == null ? "" : channelName);
 			
-			consOutputStream.writeObject(searchedWord); // consumer sends the searched word
-			consOutputStream.writeObject(byWho); // consumer sends his name so that Broker doesn't send his own videos back to the consumer
+			consOutputStream.writeUTF(searchedWord); // consumer sends the searched word
+			consOutputStream.writeUTF(byWho); // consumer sends his name so that Broker doesn't send his own videos back to the consumer
 			consOutputStream.flush();
-			
-			//edw mesa milaei me ton broker gia na kanei to init mallon
-			
-			
 			boolean foundFinalPiece = false;
 			ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
 			while (!foundFinalPiece) {
@@ -145,8 +141,8 @@ public class Consumer {
 		
 	}
 	
-	public void writeVideoFile() {
-		VideoFileHandler.writeFile(takenVideo, "Consumer" + IP + port);
+	public void writeVideoFile(String folderName) {
+		VideoFileHandler.writeFile(takenVideo, folderName);
 	}
 	
 	public String getIP() {

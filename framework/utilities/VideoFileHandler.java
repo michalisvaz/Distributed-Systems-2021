@@ -77,18 +77,21 @@ public class VideoFileHandler {
 			return null;
 		}
 		name = file.getName();
-		String[] parts = name.split(";");
+		String nameWithoutSuffix = name.substring(0, name.lastIndexOf('.'));
+		String[] parts = nameWithoutSuffix.split(";");
 		if (parts.length != 2) {
 			Utilities.printError("Wrong name for file to read");
 			return null;
 		}
-		String videoName = parts[0];
 		ArrayList<String> hts = new ArrayList<String>();
 		for (String ht : parts[1].split("#")) {
-			hts.add(ht.trim().toLowerCase());
+			String tmpHashtag = ht.trim().toLowerCase();
+			if (tmpHashtag.length()>=1) {
+				hts.add(tmpHashtag);
+			}
 		}
 		long size = file.length();
-		VideoFile videoFile = new VideoFile(videoName, channel, hts, size, true);
+		VideoFile videoFile = new VideoFile(name, channel, hts, size, true);
 		try {
 			byte[] fileContent = Files.readAllBytes(file.toPath());
 			videoFile.setData(fileContent);
@@ -137,7 +140,7 @@ public class VideoFileHandler {
 		if (!theDir.exists()) {
 			theDir.mkdirs();
 		}
-		String fullName = folderName + "/" + video.getName() + ".mp4";
+		String fullName = folderName + "/" + video.getName();
 		try (FileOutputStream fos = new FileOutputStream(fullName)) {
 			fos.write(video.getData());
 			return true;

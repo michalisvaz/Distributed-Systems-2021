@@ -9,12 +9,12 @@ import components.*;
 import utilities.Utilities;
 
 public class AppNodeMain {
-
+	
 	static Scanner sc = new Scanner(System.in);
 	static Publisher publisher = null;
 	static Consumer consumer = null;
 	static ArrayList<Broker> brokers = null;
-
+	
 	public static void main(String[] args) {
 		if (args.length < 2) {
 			System.out.println("Give at least two cmd args. The file with the brokers info and "
@@ -27,86 +27,101 @@ public class AppNodeMain {
 			System.exit(-1);
 		}
 		String channelName = null;
+		String folderName = null;
 		while (true) {
 			int input = menu();
 			switch (input) {
-			case 1:
-				if (channelName == null) {
-					System.out.println("Add your channelName: ");
-					channelName = sc.nextLine();
-					while (channelName.startsWith("#")) {
-						System.out.println("Channel name can't start with a hashtag. Try again: ");
+				case 1:
+					if (channelName == null) {
+						System.out.println("Add your channelName: ");
 						channelName = sc.nextLine();
-					}
-				}
-				publisher = new Publisher(null, channelName, 0);
-				boolean pubInitFlag = publisher.init(brokers);
-				if (pubInitFlag) {
-					publisher.readFile();
-					if (publisher.getCurrentVideo() == null) {
-						System.out.println("Video Upload cancelled");
-					} else {
-						boolean pubToBrokerSuccess = publisher.push();
-						if (pubToBrokerSuccess) {
-							System.out.println("Video successfully uploaded");
-						} else {
-							System.out.println("Problem in uploading video");
+						while (channelName.startsWith("#")) {
+							System.out.println("Channel name can't start with a hashtag. Try again: ");
+							channelName = sc.nextLine();
 						}
 					}
-				} else {
-					System.out.println("Publisher initialization failed");
-				}
-				publisher = null;
-				break; // break the switch
-			case 2:
-				System.out.println("Creator's name: ");
-				String creator = sc.nextLine();
-				boolean flag1 = creator.startsWith("#");
-				boolean flag2 = creator.equals(channelName);
-				while (flag1 || flag2) {
-					if (flag1) {
-						System.out.println("Creator name can't start with a hashtag. Try again: ");
+					channelName = channelName.trim();
+					publisher = new Publisher(null, channelName, 0);
+					boolean pubInitFlag = publisher.init(brokers);
+					if (pubInitFlag) {
+						publisher.readFile();
+						if (publisher.getCurrentVideo() == null) {
+							System.out.println("Video Upload cancelled");
+						} else {
+							boolean pubToBrokerSuccess = publisher.push();
+							if (pubToBrokerSuccess) {
+								System.out.println("Video successfully uploaded");
+							} else {
+								System.out.println("Problem in uploading video");
+							}
+						}
 					} else {
-						System.out.println("Don't ask for your own videos. Give another channel name: ");
+						System.out.println("Publisher initialization failed");
 					}
-					creator = sc.nextLine();
-					flag1 = creator.startsWith("#");
-					flag2 = creator.equals(channelName);
-				}
-				consumer = new Consumer(null, 0, channelName);
-				boolean foundResponsibleBroker = consumer.findBroker(brokers, creator);
-				if (foundResponsibleBroker) {
-					boolean foundVideo = consumer.getByChannel(creator);
+					publisher = null;
+					break; // break the switch
+				case 2:
+					if(folderName==null && channelName!=null) {
+						System.out.println("Give folder in which I will save the videos you got: ");
+						folderName = sc.nextLine();
+					}else {
+						folderName = "Consumer" + channelName;
+					}
+					System.out.println("Creator's name: ");
+					String creator = sc.nextLine();
+					boolean flag1 = creator.startsWith("#");
+					boolean flag2 = creator.equals(channelName);
+					while (flag1 || flag2) {
+						if (flag1) {
+							System.out.println("Creator name can't start with a hashtag. Try again: ");
+						} else {
+							System.out.println("Don't ask for your own videos. Give another channel name: ");
+						}
+						creator = sc.nextLine();
+						flag1 = creator.startsWith("#");
+						flag2 = creator.equals(channelName);
+					}
+					creator = creator.trim();
+					consumer = new Consumer(null, 0, channelName);
+					boolean foundResponsibleBroker = consumer.findBroker(brokers, creator);
+					if (foundResponsibleBroker) {
+						boolean foundVideo = consumer.getByChannel(creator);
+						if (foundVideo) {
+							consumer.writeVideoFile(folderName);
+							System.out.println("Video saved in folder: " + folderName);
+						} else {
+							System.out.println("Couldn't find videos from requested channel");
+						}
+					} else {
+						System.out.println("Couldn't locate responsible broker");
+					}
+					consumer = null;
+					break; // break the switch
+				case 3:
+					if(folderName==null && channelName!=null) {
+						System.out.println("Give folder in which I will save the videos you got: ");
+						folderName = sc.nextLine();
+					}else {
+						folderName = "Consumer" + channelName;
+					}
+					System.out.println("Hashtag: ");
+					String hashtag = sc.nextLine();
+					hashtag = Utilities.addHashtag(hashtag);
+					consumer = new Consumer(null, 0, channelName);
+					boolean foundVideo = consumer.getByHashtag(hashtag);
 					if (foundVideo) {
-						consumer.writeVideoFile();
+						consumer.writeVideoFile(folderName);
 					} else {
 						System.out.println("Couldn't find requested video");
 					}
-				} else {
-					System.out.println("Couldn't locate responsible broker");
-				}
-//					consumer.connectCons(creator);
-				consumer = null;
-				break; // break the switch
-			case 3:
-				System.out.println("Hashtag: ");
-				String hashtag = sc.nextLine();
-				hashtag = Utilities.addHashtag(hashtag);
-				consumer = new Consumer(null, 0, channelName);
-				boolean foundVideo = consumer.getByHashtag(hashtag);
-				if (foundVideo) {
-					consumer.writeVideoFile();
-				} else {
-					System.out.println("Couldn't find requested video");
-				}
-				consumer = null;
-				break; // break the switch
-			default:
-				System.exit(0);
+					consumer = null;
+					break; // break the switch
+				default:
+					System.exit(0);
 			}
 		}
 	}
-
+	
 	// initialize brokers list
 	private static ArrayList<Broker> initBrokerList(String[] args) {
 		String brokerFileName = args[0];
@@ -167,7 +182,7 @@ public class AppNodeMain {
 		}
 		return brokersList;
 	}
-
+	
 	private static int menu() {
 		System.out.println("---------- MENU ----------");
 		System.out.println("1\tUpload videos"); // send all your videos to the Broker
@@ -175,10 +190,10 @@ public class AppNodeMain {
 		System.out.println("3\tSearch hashtag"); // self explanatory
 		System.out.println("0\tExit App");
 		System.out.println("--------------------------");
-
+		
 		System.out.print("Enter: ");
 		String userInput = sc.nextLine();
 		return userInput != null ? Integer.parseInt(userInput) : 0;
 	}
-
+	
 }

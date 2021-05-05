@@ -133,8 +133,8 @@ public class Broker implements Comparable<Broker> {
 				}
 				VideoFile res = VideoFileHandler.merge(chunks);
 				synchronized (videoFiles) {
-					VideoFileHandler.writeFile(res, System.getProperty("user.dir") + "/Broker" + getIp() +
-							getPortToPublishers() + getPortToConsumers());
+					VideoFileHandler.writeFile(res, System.getProperty("user.dir") + "/Broker" + getIp()
+							+ getPortToPublishers() + getPortToConsumers());
 					res.setData(null);
 					videoFiles.put(res.getName(), res);
 				}
@@ -145,7 +145,7 @@ public class Broker implements Comparable<Broker> {
 		}
 	}
 	
-	public void sendData(){
+	public void sendData() {
 		new Thread("Data-sending Thread") {
 			@Override
 			public void run() {
@@ -169,7 +169,7 @@ public class Broker implements Comparable<Broker> {
 		}.start();
 	}
 	
-	private class ToConsumerThread extends Thread{
+	private class ToConsumerThread extends Thread {
 		public Socket socket;
 		private ObjectInputStream oins;
 		private ObjectOutputStream oouts;
@@ -187,33 +187,52 @@ public class Broker implements Comparable<Broker> {
 		}
 		
 		@Override
-		public void run(){
+		public void run() {
 			try {
 				String searchedWord = oins.readUTF();
 				String byWho = oins.readUTF();
-				if (searchedWord.charAt(3) == '#'){
-				
-				}else{
+				if (searchedWord.charAt(3) == '#') {
+					int cnt = 0;
+					String hashtag = searchedWord.replace("#", "").replace("in:", "");
+					String clientName = byWho.replace("by:", "");
+					for (VideoFile vf : videoFiles.values()) {
+						if (vf.getHashtags().contains(hashtag) && !vf.getChannel().equals(clientName)) {
+							cnt += 1;
+						}
+					}
+					oouts.writeInt(cnt);
+					oouts.flush();
+					if (cnt != 0) {
+					
+					}
+					oouts.close();
+					socket.close();
+				} else {
 					ArrayList<VideoFile> maybeToSend = new ArrayList<>();
-					for (VideoFile vf: videoFiles.values()){
-						if (vf.getChannel().trim().equalsIgnoreCase(searchedWord.trim())){
+					String requestedChannel = searchedWord.replace("in:", "");
+					for (VideoFile vf : videoFiles.values()) {
+						if (vf.getChannel().trim().equalsIgnoreCase(requestedChannel.trim())) {
 							maybeToSend.add(vf);
 						}
 					}
-					if (maybeToSend.isEmpty()){
+					if (maybeToSend.isEmpty()) {
 						VideoFile toSend = new VideoFile("EMPTY", null, new ArrayList<>(), 0, true);
 						oouts.writeObject(toSend);
-					}else{
+						oouts.flush();
+					} else {
 						int randIndex = new Random().nextInt(maybeToSend.size());
 						VideoFile toSend = maybeToSend.get(randIndex);
+						String directory = System.getProperty("user.dir") + "/Broker" + ip + portToPublishers
+								+ portToConsumers + "/";
+						toSend = VideoFileHandler.readFile(directory + toSend.getName(), requestedChannel.trim());
 						ArrayList<VideoFile> result = VideoFileHandler.split(toSend);
 						for (VideoFile x : result) {
 							oouts.writeObject(x);
 							oouts.flush();
 						}
-						oouts.close();
-						socket.close();
 					}
+					oouts.close();
+					socket.close();
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
