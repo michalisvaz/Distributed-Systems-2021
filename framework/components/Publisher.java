@@ -21,7 +21,7 @@ public class Publisher {
 	private VideoFile currentVideo = null;
 	
 	/**
-	 * Maybe more properties will be needed
+	 * Constructor
 	 *
 	 * @param IP          ip address of Publisher
 	 * @param channelName name of Publisher's channel
@@ -43,7 +43,12 @@ public class Publisher {
 		if (brokers == null || brokers.isEmpty()) {
 			return false;
 		}
+		// hash the producer's channel name
 		BigInteger myHash = Utilities.hash(channelName);
+		// iterate the (sorted) list of brokers. If producer's hash is less than the broker's hashValue,
+		// then we found the broker. Note that by breaking the loop once we found a broker with greater hashValue
+		// than our own (and because the list is sorted), we end up with matching the producer to the first broker
+		// with a greater hash than ours.
 		boolean found = false;
 		for (Broker broker : brokers) {
 			if (myHash.compareTo(broker.getHashValue()) < 0) {
@@ -53,6 +58,8 @@ public class Publisher {
 				break;
 			}
 		}
+		// if we didn't find a broker, then our hashValue is greater than all the brokers' hashValues
+		// so we are matched to the first broker
 		if (!found) {
 			this.brokerIP = brokers.get(0).getIp();
 			this.brokerPort = brokers.get(0).getPortToPublishers();
@@ -60,6 +67,10 @@ public class Publisher {
 		return true;
 	}
 	
+	/**
+	 * Reads from the user a name corresponding to the file which should be uploaded (or CANCEL if the user regrets it)
+	 * And then reads the file from the disk
+	 */
 	public void readFile() {
 		currentVideo = null;
 		System.out.println("Give the name of the file you wish to upload");
@@ -82,6 +93,10 @@ public class Publisher {
 		}
 	}
 	
+	/**
+	 * Send the file to the Broker
+	 * @return true if everything went ok, false if there were problems
+	 */
 	public boolean push() {
 		
 		try {

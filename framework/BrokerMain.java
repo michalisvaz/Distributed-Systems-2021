@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 
 public class BrokerMain {
 	public static void main(String[] args) {
+		// args and file format checks. Not the main part of the project
 		if (args.length != 2) {
 			System.err.println("Give two cmd arguments: the file with brokers and the line "
 					+ "of the file which corresponds to this broker");
@@ -38,6 +39,7 @@ public class BrokerMain {
 			System.err.println("Invalid file name");
 			System.exit(-1);
 		}
+		// initialize and run the broker
 		Broker broker = new Broker(ip, portToPublishers, portToConsumers);
 		broker.runBroker();
 	}

@@ -21,6 +21,7 @@ public class AppNodeMain {
 					+ "the lines which correspond to the current brokers");
 			System.exit(-1);
 		}
+		// initialize and sort the list with the brokers to use
 		brokers = initBrokerList(args);
 		Collections.sort(brokers);
 		if (brokers == null) {
@@ -61,10 +62,10 @@ public class AppNodeMain {
 					publisher = null;
 					break; // break the switch
 				case 2:
-					if(folderName==null && channelName!=null) {
+					if (folderName == null && channelName != null) {
 						System.out.println("Give folder in which I will save the videos you will get: ");
 						folderName = sc.nextLine();
-					}else {
+					} else {
 						folderName = "Consumer" + channelName;
 					}
 					System.out.println("Creator's name: ");
@@ -98,10 +99,10 @@ public class AppNodeMain {
 					consumer = null;
 					break; // break the switch
 				case 3:
-					if(folderName==null && channelName!=null) {
+					if (folderName == null && channelName != null) {
 						System.out.println("Give folder in which I will save the videos you will get: ");
 						folderName = sc.nextLine();
-					}else {
+					} else {
 						folderName = "Consumer" + channelName;
 					}
 					System.out.println("Hashtag: ");
@@ -122,7 +123,12 @@ public class AppNodeMain {
 		}
 	}
 	
-	// initialize brokers list
+	/**
+	 * Initialize brokers list using the file and the lines specified in args
+	 *
+	 * @param args the command line arguments from main. They must be a filename and the lines of the filename that correspond to the brokers currently in action
+	 * @return an ArrayList with the brokers. If anything went wrong return null.
+	 */
 	private static ArrayList<Broker> initBrokerList(String[] args) {
 		String brokerFileName = args[0];
 		int[] linesWithBroker = new int[args.length - 1];
@@ -152,7 +158,7 @@ public class AppNodeMain {
 			}
 		}
 		Arrays.sort(linesWithBroker);
-		// fill the list with the brokers
+		// fill the list with the brokers while doing the necessary checks for each line
 		ArrayList<Broker> brokersList = new ArrayList<Broker>();
 		int index = 0, cnt = 1;
 		while (input.hasNextLine()) {
@@ -183,6 +189,11 @@ public class AppNodeMain {
 		return brokersList;
 	}
 	
+	/**
+	 * Ask the user what action (s)he wants to perform
+	 *
+	 * @return A code with the user's choice
+	 */
 	private static int menu() {
 		System.out.println("---------- MENU ----------");
 		System.out.println("1\tUpload videos"); // send all your videos to the Broker

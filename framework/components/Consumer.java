@@ -20,6 +20,7 @@ public class Consumer {
 	ObjectInputStream consInputStream = null;
 	private int port, brokerPort = 0;
 	VideoFile takenVideo;
+	ArrayList<Integer> relativeVideosPerBroker;
 	// broker port is the port on the Broker, which communicates with the Consumers
 	
 	/**
@@ -32,6 +33,7 @@ public class Consumer {
 		this.IP = IP;
 		this.port = port;
 		this.channelName = channelName;
+		relativeVideosPerBroker = new ArrayList<>();
 	}
 	
 	public boolean findBroker(ArrayList<Broker> brokers, String creator) {
@@ -133,6 +135,12 @@ public class Consumer {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	private class ToBrokerThread extends Thread{
+	
+	
+	
 	}
 	
 	public void writeVideoFile(String folderName) {

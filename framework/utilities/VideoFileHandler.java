@@ -14,6 +14,7 @@ public class VideoFileHandler {
 	public static final int CHUNK_SIZE = 256 * 1024;
 	
 	/**
+	 * Probably useless
 	 * Read info about the mp4 files corresponding to a certain channel and/or
 	 * certain hashtags Name format for videos: "Dog catches ball; #dog #ball;
 	 * channel1"
@@ -104,6 +105,7 @@ public class VideoFileHandler {
 	}
 	
 	/**
+	 * Probably useless
 	 * Writes the VideoFile objects to directory folderName in separate mp4 files
 	 *
 	 * @param chunkList  the files to be written

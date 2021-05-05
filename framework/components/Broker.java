@@ -73,6 +73,9 @@ public class Broker implements Comparable<Broker> {
 		return videoFiles;
 	}
 	
+	/**
+	 * Runs a method to connect with the Publishers and receive data from them, and a method to send data to users
+	 */
 	public void runBroker() {
 		System.out.println("Running Broker with ip " + ip + " and ports " + portToPublishers + ", " + portToConsumers);
 		receiveData();
@@ -188,7 +191,9 @@ public class Broker implements Comparable<Broker> {
 			try {
 				String searchedWord = oins.readUTF();
 				String byWho = oins.readUTF();
+				// If user searched by hashtag
 				if (searchedWord.charAt(3) == '#') {
+					// count how many videos not belonging to client, you have with this channel name
 					int cnt = 0;
 					String hashtag = searchedWord.replace("#", "").replace("in:", "").toLowerCase().trim();
 					String clientName = byWho.replace("by:", "").trim();
@@ -197,11 +202,14 @@ public class Broker implements Comparable<Broker> {
 							cnt += 1;
 						}
 					}
+					// send the value of the counter
 					oouts.writeInt(cnt);
 					oouts.flush();
-					// TODO: read whether you should send or not. If yes send, otherwise don't
+					// and get whether you are the chosen one that should send a video
 					boolean shouldISend = oins.readBoolean();
+					// if yes send it
 					if (shouldISend) {
+						// A random integer in [0, cnt-1]. This is the "count" of the video to send
 						int indexToSend = new Random().nextInt(cnt);
 						VideoFile toSend = null;
 						for (VideoFile vf : videoFiles.values()) {
@@ -214,18 +222,19 @@ public class Broker implements Comparable<Broker> {
 								}
 							}
 						}
+						// read video from the correct place
 						String directory = System.getProperty("user.dir") + "/Broker" + ip + portToPublishers
 								+ portToConsumers + "/";
 						toSend = VideoFileHandler.readFile(directory + toSend.getName(), toSend.getChannel());
+						// and send it
 						ArrayList<VideoFile> result = VideoFileHandler.split(toSend);
 						for (VideoFile x : result) {
 							oouts.writeObject(x);
 							oouts.flush();
 						}
 					}
-					oouts.close();
-					socket.close();
-				} else {
+				} else { //if user searched by channel
+					// candidate videos for sending
 					ArrayList<VideoFile> maybeToSend = new ArrayList<>();
 					String requestedChannel = searchedWord.replace("in:", "").toLowerCase();
 					for (VideoFile vf : videoFiles.values()) {
@@ -233,25 +242,28 @@ public class Broker implements Comparable<Broker> {
 							maybeToSend.add(vf);
 						}
 					}
+					// if there are no videos by specified channel
 					if (maybeToSend.isEmpty()) {
 						VideoFile toSend = new VideoFile("EMPTY", null, new ArrayList<>(), 0, true);
 						oouts.writeObject(toSend);
 						oouts.flush();
-					} else {
+					} else { // if we have videos to send choose randomly one
 						int randIndex = new Random().nextInt(maybeToSend.size());
 						VideoFile toSend = maybeToSend.get(randIndex);
+						// read from the right place
 						String directory = System.getProperty("user.dir") + "/Broker" + ip + portToPublishers
 								+ portToConsumers + "/";
 						toSend = VideoFileHandler.readFile(directory + toSend.getName(), requestedChannel.trim());
+						// and send it
 						ArrayList<VideoFile> result = VideoFileHandler.split(toSend);
 						for (VideoFile x : result) {
 							oouts.writeObject(x);
 							oouts.flush();
 						}
 					}
-					oouts.close();
-					socket.close();
 				}
+				oouts.close();
+				socket.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
