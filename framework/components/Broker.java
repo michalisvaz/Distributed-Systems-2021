@@ -21,6 +21,7 @@ public class Broker implements Comparable<Broker> {
 	private Vector<ToPublisherThread> publishers;
 	private Vector<ToConsumerThread> consumers;
 	private HashMap<String, VideoFile> videoFiles;
+	private ArrayList<Broker> otherBrokers;
 	
 	/**
 	 * @param ip
@@ -71,6 +72,14 @@ public class Broker implements Comparable<Broker> {
 	
 	public HashMap<String, VideoFile> getVideoFiles() {
 		return videoFiles;
+	}
+	
+	public void setOtherBrokers(ArrayList<Broker> otherBrokers) {
+		this.otherBrokers = new ArrayList<>();
+		for (Broker b : otherBrokers) {
+			Broker tmp = new Broker(b.getIp(), b.getPortToPublishers(), b.getPortToConsumers());
+			this.otherBrokers.add(tmp);
+		}
 	}
 	
 	/**
@@ -190,9 +199,16 @@ public class Broker implements Comparable<Broker> {
 		public void run() {
 			try {
 				String searchedWord = oins.readUTF();
-				String byWho = oins.readUTF();
 				// If user searched by hashtag
-				if (searchedWord.charAt(3) == '#') {
+				if (searchedWord.equals("GETBROKERLIST")) {
+					for (Broker x:otherBrokers){
+						oouts.writeUTF(x.toString());
+						oouts.flush();
+					}
+					oouts.writeUTF("FINISHED");
+					oouts.flush();
+				} else if (searchedWord.charAt(3) == '#') {
+					String byWho = oins.readUTF();
 					// count how many videos not belonging to client, you have with this channel name
 					int cnt = 0;
 					String hashtag = searchedWord.replace("#", "").replace("in:", "").toLowerCase().trim();
@@ -274,5 +290,9 @@ public class Broker implements Comparable<Broker> {
 	@Override
 	public int compareTo(Broker o) {
 		return this.hashValue.compareTo(o.getHashValue());
+	}
+	
+	public String toString() {
+		return this.getIp() + ";" + this.getPortToPublishers() + ";" + this.getPortToConsumers();
 	}
 }

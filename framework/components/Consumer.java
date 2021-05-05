@@ -66,10 +66,8 @@ public class Consumer {
 			consInputStream = new ObjectInputStream(consSocket.getInputStream());
 			
 			String searchedWord = "in:" + creator;
-			String byWho = "by:" + (channelName == null ? "" : channelName);
 			
 			consOutputStream.writeUTF(searchedWord); // consumer sends the searched word
-			consOutputStream.writeUTF(byWho); // consumer sends his name so that Broker doesn't send his own videos back to the consumer
 			consOutputStream.flush();
 			boolean foundFinalPiece = false;
 			ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
@@ -138,8 +136,6 @@ public class Consumer {
 	}
 	
 	private class ToBrokerThread extends Thread{
-	
-	
 	
 	}
 	
