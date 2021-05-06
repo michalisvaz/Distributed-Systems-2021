@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Random;
 
 import utilities.Utilities;
 import utilities.VideoFile;
@@ -95,39 +96,62 @@ public class Consumer {
 		}
 	}
 	
-	public boolean getByHashtag(String hashtag, ArrayList<Broker> brokers) {
+	public boolean getByHashtag(String hashtag) {
 		try {
-			//prepei na stelnei se pollous brokers ara Multithreaded
-			consSocket = new Socket(brokerIP, brokerPort); // connects with brokers to announce
-			// existance
-			
+			consSocket = new Socket(brokerIP, brokerPort);
 			consOutputStream = new ObjectOutputStream(consSocket.getOutputStream());
 			consInputStream = new ObjectInputStream(consSocket.getInputStream());
 			
 			String searchedWord = "in:" + hashtag;
 			String byWho = "by:" + (channelName == null ? "" : channelName);
 			
-			consOutputStream.writeObject(searchedWord); // consumer sends the searched word
-			consOutputStream.writeObject(byWho); // consumer sends his name so that Broker doesn't send his own videos back to the consumer
+			consOutputStream.writeUTF(searchedWord); // consumer sends the searched word
+			consOutputStream.writeUTF(byWho); // consumer sends his name so that Broker doesn't send his own videos back to the consumer
 			consOutputStream.flush();
 			
-			//edw mesa milaei me ton broker gia na kanei to init mallon
-			// TODO: get the list with brokers and number of videos with the requested hashtag
-			
-			boolean foundFinalPiece = false;
-			ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
-			while (!foundFinalPiece) {
-				try {//here we get the video from the broker with the *consInputStream*
-					chosenVid.add((VideoFile) consInputStream.readObject()); //den eimai sigoyros an tha ginei me ayto ton tropo
-				} catch (ClassNotFoundException e) {
-					System.err.println("Problem with getting the video chunks");
+			String code = consInputStream.readUTF();
+			if (code.equals("VIDEO")) {
+				boolean foundFinalPiece = false;
+				ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
+				while (!foundFinalPiece) {
+					try {//here we get the video from the broker with the *consInputStream*
+						chosenVid.add((VideoFile) consInputStream.readObject()); //den eimai sigoyros an tha ginei me ayto ton tropo
+					} catch (ClassNotFoundException e) {
+						System.err.println("Problem with getting the video chunks");
+					}
 				}
+				takenVideo = VideoFileHandler.merge(chosenVid);
+			} else if (code.equals("NOT FOUND")){
+				return false;
+			} else {
+				Broker tmp = Utilities.toBroker(code);
+				consSocket = new Socket(tmp.getIp(), tmp.getPortToConsumers());
+				consOutputStream = new ObjectOutputStream(consSocket.getOutputStream());
+				consInputStream = new ObjectInputStream(consSocket.getInputStream());
+				
+				consOutputStream.writeUTF(searchedWord); // consumer sends the searched word
+				consOutputStream.writeUTF(byWho); // consumer sends his name so that Broker doesn't send his own videos back to the consumer
+				consOutputStream.flush();
+				
+				code = consInputStream.readUTF();
+				if (!code.equals("VIDEO")){
+					return false;
+				}
+				boolean foundFinalPiece = false;
+				ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
+				while (!foundFinalPiece) {
+					try {//here we get the video from the broker with the *consInputStream*
+						chosenVid.add((VideoFile) consInputStream.readObject()); //den eimai sigoyros an tha ginei me ayto ton tropo
+					} catch (ClassNotFoundException e) {
+						System.err.println("Problem with getting the video chunks");
+					}
+				}
+				takenVideo = VideoFileHandler.merge(chosenVid);
 			}
-		
+			
 			consInputStream.close();
 			consOutputStream.close();
 			consSocket.close();
-			takenVideo = VideoFileHandler.merge(chosenVid);
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -135,7 +159,13 @@ public class Consumer {
 		}
 	}
 	
-	private class ToBrokerThread extends Thread{
+	public void setRandomBroker(ArrayList<Broker> brokers) {
+		int i = new Random().nextInt(brokers.size());
+		this.brokerIP = brokers.get(i).getIp();
+		this.brokerPort = brokers.get(i).getPortToConsumers();
+	}
+	
+	private class ToBrokerThread extends Thread {
 	
 	}
 	

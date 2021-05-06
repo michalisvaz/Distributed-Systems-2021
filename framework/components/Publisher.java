@@ -104,6 +104,8 @@ public class Publisher {
 			pubSocket = new Socket(brokerIP, brokerPort);
 			pubOutputStream = new ObjectOutputStream(pubSocket.getOutputStream());
 			
+			pubOutputStream.writeBoolean(true);
+			pubOutputStream.flush();
 			ArrayList<VideoFile> result = VideoFileHandler.split(currentVideo);
 			for (VideoFile x : result) {
 				pubOutputStream.writeObject(x);

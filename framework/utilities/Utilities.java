@@ -1,5 +1,7 @@
 package utilities;
 
+import components.Broker;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -120,6 +122,11 @@ public class Utilities {
 			return false;
 		}
 		return true;
+	}
+	
+	public static Broker toBroker(String str){
+		String[] parts = str.split(";");
+		return new Broker(parts[0], Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
 	}
 	
 }

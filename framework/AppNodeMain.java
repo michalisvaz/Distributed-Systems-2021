@@ -111,7 +111,8 @@ public class AppNodeMain {
 					String hashtag = sc.nextLine();
 					hashtag = Utilities.addHashtag(hashtag);
 					consumer = new Consumer(null, 0, channelName);
-					boolean foundVideo = consumer.getByHashtag(hashtag, brokers);
+					consumer.setRandomBroker(brokers);
+					boolean foundVideo = consumer.getByHashtag(hashtag);
 					if (foundVideo) {
 						consumer.writeVideoFile(folderName);
 					} else {
@@ -166,7 +167,7 @@ public class AppNodeMain {
 					if (current.equals("FINISHED")){
 						endFound = true;
 					}else {
-						brokers.add(toBroker(current));
+						brokers.add(Utilities.toBroker(current));
 					}
 				}
 				tempInStream.close();
@@ -198,11 +199,6 @@ public class AppNodeMain {
 		System.out.print("Enter: ");
 		String userInput = sc.nextLine();
 		return userInput != null ? Integer.parseInt(userInput) : 0;
-	}
-	
-	public static Broker toBroker(String str){
-		String[] parts = str.split(";");
-		return new Broker(parts[0], Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
 	}
 	
 }

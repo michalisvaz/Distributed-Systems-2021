@@ -1,5 +1,6 @@
 package components;
 
+import utilities.Pair;
 import utilities.Utilities;
 import utilities.VideoFile;
 import utilities.VideoFileHandler;
@@ -21,6 +22,7 @@ public class Broker implements Comparable<Broker> {
 	private Vector<ToPublisherThread> publishers;
 	private Vector<ToConsumerThread> consumers;
 	private HashMap<String, VideoFile> videoFiles;
+	private HashMap<String, ArrayList<Pair>> brokersToHashtags;
 	private ArrayList<Broker> otherBrokers;
 	
 	/**
@@ -33,9 +35,10 @@ public class Broker implements Comparable<Broker> {
 		this.portToPublishers = portToPublishers;
 		this.portToConsumers = portToConsumers;
 		this.hashValue = Utilities.hash(this.ip, this.portToPublishers);
-		this.publishers = new Vector<ToPublisherThread>();
-		this.consumers = new Vector<ToConsumerThread>();
-		this.videoFiles = new HashMap<String, VideoFile>();
+		this.publishers = new Vector<>();
+		this.consumers = new Vector<>();
+		this.videoFiles = new HashMap<>();
+		this.brokersToHashtags = new HashMap<>();
 	}
 	
 	public int getPortToPublishers() {
@@ -79,6 +82,7 @@ public class Broker implements Comparable<Broker> {
 		for (Broker b : otherBrokers) {
 			Broker tmp = new Broker(b.getIp(), b.getPortToPublishers(), b.getPortToConsumers());
 			this.otherBrokers.add(tmp);
+			this.brokersToHashtags.put(this.getString(), new ArrayList<>());
 		}
 	}
 	
@@ -132,22 +136,56 @@ public class Broker implements Comparable<Broker> {
 		@Override
 		public void run() {
 			try {
-				ArrayList<VideoFile> chunks = new ArrayList<VideoFile>();
-				boolean endFound = false;
-				System.out.println("Getting files");
-				while (!endFound) {
-					VideoFile chunk = (VideoFile) ois.readObject();
-					chunks.add(chunk);
-					endFound = chunk.isFinal();
+				boolean isVideoFile = ois.readBoolean();
+				if (isVideoFile) {
+					ArrayList<VideoFile> chunks = new ArrayList<VideoFile>();
+					boolean endFound = false;
+					System.out.println("Getting files");
+					while (!endFound) {
+						VideoFile chunk = (VideoFile) ois.readObject();
+						chunks.add(chunk);
+						endFound = chunk.isFinal();
+					}
+					VideoFile res = VideoFileHandler.merge(chunks);
+					synchronized (videoFiles) {
+						VideoFileHandler.writeFile(res, System.getProperty("user.dir") + "/Broker" + getIp()
+								+ getPortToPublishers() + getPortToConsumers());
+						res.setData(null);
+						videoFiles.put(res.getName(), res);
+					}
+					System.out.println("Successfully merged and saved file");
+					Pair toPut;
+					synchronized (brokersToHashtags) {
+						for (String htg : res.getHashtags()) {
+							toPut = new Pair(htg, res.getChannel());
+							brokersToHashtags.get(getString()).add(toPut);
+						}
+					}
+					for (Broker br : otherBrokers) {
+						if (br.getString().equals(getString())) {
+							continue;
+						}
+						String ipToSpeak = br.getIp();
+						int portToSpeak = br.getPortToPublishers();
+						Socket tmpSocket = new Socket(ipToSpeak, portToSpeak);
+						OutputStream tmpOutStream = tmpSocket.getOutputStream();
+						ObjectOutputStream tmpObjectOutStream = new ObjectOutputStream(tmpOutStream);
+						tmpObjectOutStream.writeBoolean(false);
+						tmpObjectOutStream.flush();
+						tmpObjectOutStream.writeObject(brokersToHashtags);
+						tmpObjectOutStream.flush();
+						tmpSocket.close();
+						tmpOutStream.close();
+						tmpObjectOutStream.close();
+					}
+				} else {
+					Object tmpObject = ois.readObject();
+					if (tmpObject==null){
+						System.out.println("Something went wrong updating brokers to hashtags HashMap");
+					}else {
+						brokersToHashtags = (HashMap<String, ArrayList<Pair>>) tmpObject;
+					}
 				}
-				VideoFile res = VideoFileHandler.merge(chunks);
-				synchronized (videoFiles) {
-					VideoFileHandler.writeFile(res, System.getProperty("user.dir") + "/Broker" + getIp()
-							+ getPortToPublishers() + getPortToConsumers());
-					res.setData(null);
-					videoFiles.put(res.getName(), res);
-				}
-				System.out.println("Successfully merged and saved file");
 			} catch (IOException | ClassNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -201,15 +239,15 @@ public class Broker implements Comparable<Broker> {
 				String searchedWord = oins.readUTF();
 				// If user searched by hashtag
 				if (searchedWord.equals("GETBROKERLIST")) {
-					for (Broker x:otherBrokers){
-						oouts.writeUTF(x.toString());
+					for (Broker x : otherBrokers) {
+						oouts.writeUTF(x.getString());
 						oouts.flush();
 					}
 					oouts.writeUTF("FINISHED");
 					oouts.flush();
 				} else if (searchedWord.charAt(3) == '#') {
 					String byWho = oins.readUTF();
-					// count how many videos not belonging to client, you have with this channel name
+					// count how many videos not belonging to client, you have with this hashtag
 					int cnt = 0;
 					String hashtag = searchedWord.replace("#", "").replace("in:", "").toLowerCase().trim();
 					String clientName = byWho.replace("by:", "").trim();
@@ -218,13 +256,9 @@ public class Broker implements Comparable<Broker> {
 							cnt += 1;
 						}
 					}
-					// send the value of the counter
-					oouts.writeInt(cnt);
-					oouts.flush();
-					// and get whether you are the chosen one that should send a video
-					boolean shouldISend = oins.readBoolean();
-					// if yes send it
-					if (shouldISend) {
+					if (cnt > 0) {
+						oouts.writeUTF("VIDEO");
+						oouts.flush();
 						// A random integer in [0, cnt-1]. This is the "count" of the video to send
 						int indexToSend = new Random().nextInt(cnt);
 						VideoFile toSend = null;
@@ -246,6 +280,25 @@ public class Broker implements Comparable<Broker> {
 						ArrayList<VideoFile> result = VideoFileHandler.split(toSend);
 						for (VideoFile x : result) {
 							oouts.writeObject(x);
+							oouts.flush();
+						}
+					} else {
+						String where = null;
+						outer:
+						for (String key : brokersToHashtags.keySet()) {
+							ArrayList<Pair> pairs = brokersToHashtags.get(key);
+							for (Pair p : pairs) {
+								if (p.getHashtag().equals(hashtag) && !p.getChannel().equals(clientName)) {
+									where = key;
+									break outer;
+								}
+							}
+						}
+						if (where != null) {
+							oouts.writeUTF(where);
+							oouts.flush();
+						} else {
+							oouts.writeUTF("NOT FOUND");
 							oouts.flush();
 						}
 					}
@@ -292,7 +345,8 @@ public class Broker implements Comparable<Broker> {
 		return this.hashValue.compareTo(o.getHashValue());
 	}
 	
-	public String toString() {
+	public String getString() {
 		return this.getIp() + ";" + this.getPortToPublishers() + ";" + this.getPortToConsumers();
 	}
+	
 }
