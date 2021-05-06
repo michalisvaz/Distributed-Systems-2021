@@ -184,9 +184,9 @@ public class Broker implements Comparable<Broker> {
 					}
 				} else {
 					Object tmpObject = ois.readObject();
-					if (tmpObject==null){
+					if (tmpObject == null) {
 						System.out.println("Something went wrong updating brokers to hashtags HashMap");
-					}else {
+					} else {
 						brokersToHashtags = (HashMap<String, ArrayList<Pair>>) tmpObject;
 					}
 				}

@@ -95,6 +95,7 @@ public class Publisher {
 	
 	/**
 	 * Send the file to the Broker
+	 *
 	 * @return true if everything went ok, false if there were problems
 	 */
 	public boolean push() {

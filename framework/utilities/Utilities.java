@@ -124,6 +124,11 @@ public class Utilities {
 		return true;
 	}
 	
+	/**
+	 * Converts a string representation of a Broker to Broker object
+	 * @param str the string representation of the Broker
+	 * @return the Broker which comes from that string
+	 */
 	public static Broker toBroker(String str){
 		String[] parts = str.split(";");
 		return new Broker(parts[0], Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));

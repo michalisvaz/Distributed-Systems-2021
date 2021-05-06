@@ -7,7 +7,7 @@ public class Pair implements Serializable {
 	
 	private String hashtag, channel;
 	
-	public Pair(String hashtag, String channel){
+	public Pair(String hashtag, String channel) {
 		this.hashtag = hashtag;
 		this.channel = channel;
 	}
@@ -36,7 +36,7 @@ public class Pair implements Serializable {
 		return hashtag.equals(pair.hashtag) && channel.equals(pair.channel);
 	}
 	
-	public boolean equals(Pair o){
+	public boolean equals(Pair o) {
 		return hashtag.equals(o.hashtag) && channel.equals(o.channel);
 	}
 	

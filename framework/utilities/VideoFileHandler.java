@@ -87,7 +87,7 @@ public class VideoFileHandler {
 		ArrayList<String> hts = new ArrayList<String>();
 		for (String ht : parts[1].split("#")) {
 			String tmpHashtag = ht.trim().toLowerCase();
-			if (tmpHashtag.length()>=1) {
+			if (tmpHashtag.length() >= 1) {
 				hts.add(tmpHashtag);
 			}
 		}

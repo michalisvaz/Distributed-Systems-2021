@@ -136,7 +136,7 @@ public class AppNodeMain {
 		int lineNumber;
 		try {
 			lineNumber = Integer.parseInt(args[1]);
-		}catch (NumberFormatException e){
+		} catch (NumberFormatException e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -151,12 +151,12 @@ public class AppNodeMain {
 		}
 		String line;
 		try {
-			line = Files.readAllLines(Paths.get(brokerFileName)).get(lineNumber-1);
+			line = Files.readAllLines(Paths.get(brokerFileName)).get(lineNumber - 1);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
 		}
-		if (Utilities.checkBrokerInfo(line)){
+		if (Utilities.checkBrokerInfo(line)) {
 			String ip = line.split(";")[0];
 			int port = Integer.parseInt(line.split(";")[2]);
 			try {
@@ -167,11 +167,11 @@ public class AppNodeMain {
 				tempOutStream.flush();
 				ArrayList<Broker> brokers = new ArrayList<>();
 				boolean endFound = false;
-				while (!endFound){
+				while (!endFound) {
 					String current = tempInStream.readUTF();
-					if (current.equals("FINISHED")){
+					if (current.equals("FINISHED")) {
 						endFound = true;
-					}else {
+					} else {
 						brokers.add(Utilities.toBroker(current));
 					}
 				}
@@ -183,7 +183,7 @@ public class AppNodeMain {
 				e.printStackTrace();
 				return null;
 			}
-		}else {
+		} else {
 			return null;
 		}
 	}

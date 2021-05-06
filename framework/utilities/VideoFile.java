@@ -19,7 +19,7 @@ public class VideoFile implements Serializable {
 	 * @param channel  channel of the video's owner
 	 * @param hashtags list of hashtags the video belongs to
 	 * @param size     the size of the videofile
-	 * @param isFinal whether the VideoFile is the final chunk of a larger(?) VideoFile or not
+	 * @param isFinal  whether the VideoFile is the final chunk of a larger(?) VideoFile or not
 	 */
 	public VideoFile(String name, String channel, List<String> hashtags, long size, boolean isFinal) {
 		this.name = name;
@@ -81,7 +81,6 @@ public class VideoFile implements Serializable {
 	}
 	
 	/**
-	 *
 	 * @return a prettier String representation of the VideoFile
 	 */
 	public String toString() {

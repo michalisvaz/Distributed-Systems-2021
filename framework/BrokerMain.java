@@ -26,7 +26,7 @@ public class BrokerMain {
 		if (brokersTextFile.exists() && !brokersTextFile.isDirectory()) {
 			int lineNumber = Integer.parseInt(args[1]);
 			try {
-				String line = Files.readAllLines(Paths.get(brokersFileName)).get(lineNumber-1);
+				String line = Files.readAllLines(Paths.get(brokersFileName)).get(lineNumber - 1);
 				if (Utilities.checkBrokerInfo(line)) {
 					String[] parts = line.split(";");
 					ip = parts[0];
