@@ -115,13 +115,15 @@ public class Consumer {
 				ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
 				while (!foundFinalPiece) {
 					try {//here we get the video from the broker with the *consInputStream*
-						chosenVid.add((VideoFile) consInputStream.readObject()); //den eimai sigoyros an tha ginei me ayto ton tropo
+						VideoFile current = (VideoFile) consInputStream.readObject();
+						chosenVid.add(current);
+						foundFinalPiece = current.isFinal();
 					} catch (ClassNotFoundException e) {
 						System.err.println("Problem with getting the video chunks");
 					}
 				}
 				takenVideo = VideoFileHandler.merge(chosenVid);
-			} else if (code.equals("NOT FOUND")){
+			} else if (code.equals("NOT FOUND")) {
 				return false;
 			} else {
 				Broker tmp = Utilities.toBroker(code);
@@ -134,14 +136,17 @@ public class Consumer {
 				consOutputStream.flush();
 				
 				code = consInputStream.readUTF();
-				if (!code.equals("VIDEO")){
+				if (!code.equals("VIDEO")) {
 					return false;
 				}
 				boolean foundFinalPiece = false;
 				ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
+				System.out.println(tmp.getString());
 				while (!foundFinalPiece) {
 					try {//here we get the video from the broker with the *consInputStream*
-						chosenVid.add((VideoFile) consInputStream.readObject()); //den eimai sigoyros an tha ginei me ayto ton tropo
+						VideoFile current = (VideoFile) consInputStream.readObject();
+						chosenVid.add(current);
+						foundFinalPiece = current.isFinal();
 					} catch (ClassNotFoundException e) {
 						System.err.println("Problem with getting the video chunks");
 					}
