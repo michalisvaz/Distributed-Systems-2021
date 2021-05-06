@@ -15,7 +15,8 @@ import java.util.Collections;
 import java.util.Scanner;
 
 public class AppNodeMain {
-	
+
+
 	static Scanner sc = new Scanner(System.in);
 	static Publisher publisher = null;
 	static Consumer consumer = null;
