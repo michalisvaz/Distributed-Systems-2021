@@ -91,6 +91,7 @@ public class Broker implements Comparable<Broker> {
 	 */
 	public void runBroker() {
 		System.out.println("Running Broker with ip " + ip + " and ports " + portToPublishers + ", " + portToConsumers);
+		System.out.println("Broker's hash value: " + hashValue);
 		receiveData();
 		sendData();
 	}
@@ -266,7 +267,6 @@ public class Broker implements Comparable<Broker> {
 							if (vf.getHashtags().contains(hashtag) && !vf.getChannel().trim().equals(clientName)) {
 								if (indexToSend == 0) {
 									toSend = vf;
-									System.out.println(toSend.getName());
 									break;
 								} else {
 									indexToSend -= 1;
@@ -279,12 +279,10 @@ public class Broker implements Comparable<Broker> {
 						toSend = VideoFileHandler.readFile(directory + toSend.getName(), toSend.getChannel());
 						// and send it
 						ArrayList<VideoFile> result = VideoFileHandler.split(toSend);
-						System.out.println("Start sending");
 						for (VideoFile x : result) {
 							oouts.writeObject(x);
 							oouts.flush();
 						}
-						System.out.println("Sent");
 					} else {
 						String where = null;
 						outer:

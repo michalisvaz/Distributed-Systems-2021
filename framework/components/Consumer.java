@@ -141,7 +141,6 @@ public class Consumer {
 				}
 				boolean foundFinalPiece = false;
 				ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
-				System.out.println(tmp.getString());
 				while (!foundFinalPiece) {
 					try {//here we get the video from the broker with the *consInputStream*
 						VideoFile current = (VideoFile) consInputStream.readObject();

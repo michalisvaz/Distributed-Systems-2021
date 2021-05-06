@@ -115,6 +115,7 @@ public class AppNodeMain {
 					boolean foundVideo = consumer.getByHashtag(hashtag);
 					if (foundVideo) {
 						consumer.writeVideoFile(folderName);
+						System.out.println("Video saved in folder: " + folderName);
 					} else {
 						System.out.println("Couldn't find videos with the requested hashtag");
 					}
