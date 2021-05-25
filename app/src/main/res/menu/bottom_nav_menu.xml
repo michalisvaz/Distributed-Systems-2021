@@ -9,12 +9,12 @@
         app:showAsAction=""/>
 
     <item
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_upload"
         android:icon="@drawable/ic_baseline_add_video_24"
         android:title="@string/title_upload" />
 
     <item
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_profile"
         android:icon="@drawable/ic_baseline_profile_24"
         android:title="@string/title_profile" />
 

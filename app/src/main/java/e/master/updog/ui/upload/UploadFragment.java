@@ -1,4 +1,4 @@
-package e.master.updog.ui.dashboard;
+package e.master.updog.ui.upload;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,24 +11,23 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import e.master.updog.R;
-import e.master.updog.databinding.FragmentDashboardBinding;
+import e.master.updog.databinding.FragmentUploadBinding;
 
-public class DashboardFragment extends Fragment {
+public class UploadFragment extends Fragment {
 
-    private DashboardViewModel dashboardViewModel;
-    private FragmentDashboardBinding binding;
+    private UploadViewModel uploadViewModel;
+    private FragmentUploadBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        dashboardViewModel =
-                new ViewModelProvider(this).get(DashboardViewModel.class);
+        uploadViewModel =
+                new ViewModelProvider(this).get(UploadViewModel.class);
 
-        binding = FragmentDashboardBinding.inflate(inflater, container, false);
+        binding = FragmentUploadBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textDashboard;
-        dashboardViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        final TextView textView = binding.textUpload;
+        uploadViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);
