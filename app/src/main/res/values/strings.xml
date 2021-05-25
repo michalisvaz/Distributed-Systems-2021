@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">UpDog</string>
     <string name="title_home">Home</string>
-    <string name="title_upload">UpLoad</string>
+    <string name="title_upload">UpDog</string>
     <string name="title_profile">Profile</string>
 </resources>
