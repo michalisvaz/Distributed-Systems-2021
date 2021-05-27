@@ -1,5 +1,6 @@
 package e.master.updog.ui.profile;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +20,8 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import e.master.updog.LoginActivity;
+import e.master.updog.MainActivity;
 import e.master.updog.R;
 import e.master.updog.databinding.FragmentProfileBinding;
 import e.master.updog.ui.adapters.VideoListAdapter;
@@ -58,11 +62,16 @@ public class ProfileFragment extends Fragment {
                 CloseVid();
             }
         });
+
+        TextView chname = binding.profileChname;
+        if(((MainActivity) requireActivity()).channelName!=null) {
+            chname.setText(((MainActivity) requireActivity()).channelName);
+        }
         Button signout = binding.signout;
         signout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                ((MainActivity) requireActivity()).signOut();
             }
         });
 

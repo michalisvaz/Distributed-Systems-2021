@@ -1,6 +1,8 @@
 package e.master.updog;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,13 +18,18 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 public class MainActivity extends AppCompatActivity {
-
+    public String channelName = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        Bundle loginData = getIntent().getExtras();
+        if (loginData!=null){
+            channelName = (String) loginData.get("channelName");
+            Log.d("Main Activity", "onCreate: " + channelName);
+        }
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -58,5 +65,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         return super.onCreateOptionsMenu(menu);
+    }
+
+    public void signOut(){
+        Intent login = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(login);
     }
 }

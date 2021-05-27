@@ -7,7 +7,7 @@
     tools:context=".ui.profile.ProfileFragment">
 
     <TextView
-        android:id="@+id/channel_name"
+        android:id="@+id/profile_chname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="My Channel Name"
@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:text="Sign Out"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/channel_name"
+        app:layout_constraintTop_toBottomOf="@id/profile_chname"
         app:layout_constraintStart_toStartOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
