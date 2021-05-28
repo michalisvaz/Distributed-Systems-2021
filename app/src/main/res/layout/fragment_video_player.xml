@@ -26,35 +26,12 @@
 
 
     <Button
-        android:id="@+id/like"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Like"
-        android:backgroundTint="@android:color/holo_green_light"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/guideline"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/dislike"
-        app:layout_constraintVertical_weight="1"/>
-
-    <Button
-        android:id="@+id/dislike"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="DisLike"
-        android:backgroundTint="@android:color/holo_red_dark"
-        app:layout_constraintStart_toEndOf="@id/like"
-        app:layout_constraintTop_toTopOf="@id/guideline"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/closebtn"/>
-
-    <Button
         android:id="@+id/closebtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Close"
         android:backgroundTint="@color/cardview_dark_background"
-        app:layout_constraintStart_toEndOf="@id/dislike"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/guideline"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>

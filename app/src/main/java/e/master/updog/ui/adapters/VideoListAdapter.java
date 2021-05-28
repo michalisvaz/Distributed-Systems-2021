@@ -47,11 +47,7 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (hfr!=null){
-                    hfr.ShowVid();
-                }else {
-                    pfr.ShowVid();
-                }
+                pfr.ShowVid();
             }
         });
     }
@@ -68,7 +64,6 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
-            this.videoImg= itemView.findViewById(R.id.video_pic);
             this.videoTitle= itemView.findViewById(R.id.video_title);
             this.channelName= itemView.findViewById(R.id.channel_name);
         }

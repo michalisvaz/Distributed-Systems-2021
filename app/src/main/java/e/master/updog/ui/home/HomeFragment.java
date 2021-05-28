@@ -1,10 +1,14 @@
 package e.master.updog.ui.home;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -27,7 +31,8 @@ public class HomeFragment extends Fragment {
 
     private HomeViewModel homeViewModel;
     private FragmentHomeBinding binding;
-    private List<VideoFile> allVids;
+//    private List<VideoFile> allVids;
+    private List<String> allChannelNames;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -35,19 +40,32 @@ public class HomeFragment extends Fragment {
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        allVids = new ArrayList<VideoFile>();
-        List<String> hashtags = new ArrayList<String>();
-        allVids.add(new VideoFile("vid1","egw1", hashtags, 1, false));
-        allVids.add(new VideoFile("vid2","egw2", hashtags, 1, false));
-        allVids.add(new VideoFile("vid3","egw3", hashtags, 1, false));
-        allVids.add(new VideoFile("vid4","egw4", hashtags, 1, false));
-        allVids.add(new VideoFile("vid5","egw5", hashtags, 1, false));
-        RecyclerView view = binding.homeGrid;
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
-        gridLayoutManager.setOrientation(RecyclerView.VERTICAL);
-        view.setLayoutManager(gridLayoutManager);
-        VideoListAdapter adapter = new VideoListAdapter(allVids, this);
-        view.setAdapter(adapter);
+//        allVids = new ArrayList<VideoFile>();
+//        List<String> hashtags = new ArrayList<String>();
+//        allVids.add(new VideoFile("vid1","egw1", hashtags, 1, false));
+//        allVids.add(new VideoFile("vid2","egw2", hashtags, 1, false));
+//        allVids.add(new VideoFile("vid3","egw3", hashtags, 1, false));
+//        allVids.add(new VideoFile("vid4","egw4", hashtags, 1, false));
+//        allVids.add(new VideoFile("vid5","egw5", hashtags, 1, false));
+        allChannelNames = new ArrayList<>();
+        allChannelNames.add("Mike69");
+        allChannelNames.add("JimDeli420");
+        allChannelNames.add("BLM3826");
+        ListView view = binding.homeGrid;
+//        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 1);
+//        gridLayoutManager.setOrientation(RecyclerView.VERTICAL);
+//        view.setLayoutManager(gridLayoutManager);
+//        VideoListAdapter adapter = new VideoListAdapter(allVids, this);
+        ArrayAdapter<String> chnameAdapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, allChannelNames);
+        view.setAdapter(chnameAdapter);
+
+        view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                ShowVid();
+                Log.d("when chname clicked", "onItemClick: " + allChannelNames.get(i));
+            }
+        });
 
         Button cls = binding.videoPlayer.closebtn;
         cls.setOnClickListener(new View.OnClickListener() {
