@@ -99,10 +99,14 @@ public class ProfileFragment extends Fragment {
     public void ShowVid(){
         ConstraintLayout constraintLayout = getView().findViewById(R.id.video_player);
         constraintLayout.setVisibility(View.VISIBLE);
+        Button signout = getView().findViewById(R.id.signout);
+        signout.setVisibility(View.GONE);
     }
 
     public void CloseVid(){
         ConstraintLayout constraintLayout = getView().findViewById(R.id.video_player);
         constraintLayout.setVisibility(View.GONE);
+        Button signout = getView().findViewById(R.id.signout);
+        signout.setVisibility(View.VISIBLE);
     }
 }

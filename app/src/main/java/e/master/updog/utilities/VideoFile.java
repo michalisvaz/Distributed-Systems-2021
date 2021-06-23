@@ -13,7 +13,7 @@ public class VideoFile implements Serializable {
 	private boolean isFinal;
 	
 	/**
-	 * There will be (many) more properties/variables for this object
+	 * There will be (many) properties/variables for this object
 	 *
 	 * @param name     full name of the file (it may contain channel and hashtags)
 	 * @param channel  channel of the video's owner

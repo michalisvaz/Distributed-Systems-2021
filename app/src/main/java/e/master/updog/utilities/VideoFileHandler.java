@@ -143,7 +143,8 @@ public class VideoFileHandler {
 			theDir.mkdirs();
 		}
 		String fullName = folderName + "/" + video.getName();
-		try (FileOutputStream fos = new FileOutputStream(fullName)) {
+		// File videoFileName = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), fullName);
+		try (FileOutputStream fos = new FileOutputStream(fullName)) { //maybe videoFileName for android
 			fos.write(video.getData());
 			return true;
 		} catch (IOException e) {
