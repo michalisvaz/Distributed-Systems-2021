@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -30,6 +31,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import e.master.updog.MainActivity;
+import e.master.updog.components.Publisher;
 import e.master.updog.databinding.FragmentUploadBinding;
 import e.master.updog.utilities.VideoFile;
 
@@ -99,6 +101,8 @@ public class UploadFragment extends Fragment {
                             VideoView videoPreview = binding.videoPreview;
                             videoPreview.setVideoURI(geller);
                             videoPreview.start();
+                            //*******add different button (Choose-UpLoad)
+                            new UploadTask().execute(newVideo);
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (NullPointerException e) {
@@ -113,4 +117,17 @@ public class UploadFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
+    private class UploadTask extends AsyncTask<VideoFile, Void, Void>{
+
+        @Override
+        protected Void doInBackground(VideoFile... videoFiles) {
+            VideoFile videoFile = videoFiles[0];
+            Publisher pub = ((MainActivity) requireActivity()).publisher;
+            pub.setCurrentVideo(videoFile);
+            boolean pubToBrokerSuccess = pub.push();
+            return null;
+        }
+    }
+
 }

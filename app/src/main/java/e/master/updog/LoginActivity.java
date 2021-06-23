@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import e.master.updog.components.Consumer;
+import e.master.updog.components.Publisher;
 import e.master.updog.utilities.Utilities;
 
 public class LoginActivity extends AppCompatActivity {
@@ -31,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
                     channelEditText.setError("Channel name is required!");
                 } else if(TextUtils.isEmpty(brokerEditText.getText())){
                     Toast.makeText(LoginActivity.this, "Broker info is required!", Toast.LENGTH_SHORT).show();
-                    channelEditText.setError("Broker info is required!");
+                    brokerEditText.setError("Broker info is required!");
                 } else {
                     String channelName = channelEditText.getText().toString();
                     String brokerInfo = brokerEditText.getText().toString();
@@ -43,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
                         startActivity(main);
                     }else{
                         Toast.makeText(LoginActivity.this, "Wrong broker info format!", Toast.LENGTH_SHORT).show();
-                        channelEditText.setError("Wrong broker info format!");
+//                        channelEditText.setError("Wrong broker info format!");
                     }
                 }
             }

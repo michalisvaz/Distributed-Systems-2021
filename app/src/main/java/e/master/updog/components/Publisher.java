@@ -140,7 +140,11 @@ public class Publisher {
 	public VideoFile getCurrentVideo() {
 		return currentVideo;
 	}
-	
+
+	public void setCurrentVideo(VideoFile currentVideo) {
+		this.currentVideo = currentVideo;
+	}
+
 	public void setChannelName(String channelName) {
 		this.channelName = channelName;
 	}

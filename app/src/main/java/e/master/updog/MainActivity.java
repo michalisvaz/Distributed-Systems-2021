@@ -1,6 +1,7 @@
 package e.master.updog;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -21,15 +22,21 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
 
 import e.master.updog.components.Broker;
+import e.master.updog.components.Consumer;
+import e.master.updog.components.Publisher;
 import e.master.updog.utilities.Utilities;
 
 public class MainActivity extends AppCompatActivity {
 
     public String channelName = null, brokerInfo = null;
+    public static String ip = null;
+    public static int port;
     static ArrayList<Broker> brokers = null;
-
+    public Publisher publisher;
+    public Consumer consumer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,8 +61,12 @@ public class MainActivity extends AppCompatActivity {
         for (Broker b : brokers){
             Log.d("BROKER", b.getString());
         }
-        moveTaskToBack(true);
-        finish();
+//        moveTaskToBack(true);
+//        finish();
+        publisher = new Publisher(ip, channelName, port);
+        consumer = new Consumer(ip, port, channelName);
+        publisher.init(brokers);
+
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -94,15 +105,41 @@ public class MainActivity extends AppCompatActivity {
 
     private static ArrayList<Broker> initBrokerList(String brokerInfo) {
         if (Utilities.checkBrokerInfo(brokerInfo)) {
-            String ip = brokerInfo.split(";")[0];
-            int port = Integer.parseInt(brokerInfo.split(";")[2]);
+            ip = brokerInfo.split(";")[0];
+            port = Integer.parseInt(brokerInfo.split(";")[2]);
+            InitBrokerListTask initTask = new InitBrokerListTask();
+            try {
+                initTask.execute().get();
+                return initTask.brokers;
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+                return null;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public void signOut() {
+        Intent login = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(login);
+    }
+
+    private static class InitBrokerListTask extends AsyncTask<Void , Void, Void>{
+        public ArrayList<Broker> brokers = null;
+
+        @Override
+        protected Void doInBackground(Void... voids) {
             try {
                 Socket socket = new Socket(ip, port);
                 ObjectOutputStream tempOutStream = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream tempInStream = new ObjectInputStream(socket.getInputStream());
                 tempOutStream.writeUTF("GETBROKERLIST");
                 tempOutStream.flush();
-                ArrayList<Broker> brokers = new ArrayList<>();
+                brokers = new ArrayList<>();
                 boolean endFound = false;
                 while (!endFound) {
                     String current = tempInStream.readUTF();
@@ -116,18 +153,11 @@ public class MainActivity extends AppCompatActivity {
                 tempOutStream.close();
                 socket.close();
                 Log.d("Main Activity", "Successfully got the brokers");
-                return brokers;
             } catch (IOException e) {
                 Log.d("Main Activity", "Error getting the brokers");
-                return null;
             }
-        } else {
             return null;
         }
-    }
 
-    public void signOut() {
-        Intent login = new Intent(MainActivity.this, LoginActivity.class);
-        startActivity(login);
     }
 }
