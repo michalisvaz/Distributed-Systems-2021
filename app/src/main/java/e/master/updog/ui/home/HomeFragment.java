@@ -11,27 +11,24 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import e.master.updog.R;
 import e.master.updog.databinding.FragmentHomeBinding;
-import e.master.updog.ui.adapters.VideoListAdapter;
-import e.master.updog.utilities.VideoFile;
 
 public class HomeFragment extends Fragment {
 
     private HomeViewModel homeViewModel;
     private FragmentHomeBinding binding;
-//    private List<VideoFile> allVids;
+    //    private List<VideoFile> allVids;
     private List<String> allChannelNames;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -91,12 +88,12 @@ public class HomeFragment extends Fragment {
         binding = null;
     }
 
-    public void ShowVid(){
+    public void ShowVid() {
         ConstraintLayout constraintLayout = getView().findViewById(R.id.video_player);
         constraintLayout.setVisibility(View.VISIBLE);
     }
 
-    public void CloseVid(){
+    public void CloseVid() {
         ConstraintLayout constraintLayout = getView().findViewById(R.id.video_player);
         constraintLayout.setVisibility(View.GONE);
     }

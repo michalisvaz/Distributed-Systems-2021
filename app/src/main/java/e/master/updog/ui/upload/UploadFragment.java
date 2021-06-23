@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.FileUtils;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,27 +14,22 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresPermission;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+
 import e.master.updog.MainActivity;
-import e.master.updog.R;
 import e.master.updog.databinding.FragmentUploadBinding;
 import e.master.updog.utilities.VideoFile;
 
@@ -59,9 +53,10 @@ public class UploadFragment extends Fragment {
             public void onClick(View view) {
                 Intent photoPickerIntent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
                 photoPickerIntent.setType("*/*");
-                photoPickerIntent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"video/*"});
+                photoPickerIntent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"video/*"});
                 someActivityResultLauncher.launch(photoPickerIntent);
-            }});
+            }
+        });
 
         final TextView textView = binding.textUpload;
         uploadViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
@@ -87,14 +82,14 @@ public class UploadFragment extends Fragment {
                             InputStream in = contentResolver.openInputStream(geller);
 //                            String FilePath = geller.getPath();
 //                            File VidFile = new File(FilePath);
-                            Log.d("VIDEOOOO", "onActivityResult: fileURI "+ geller.toString());
+                            Log.d("VIDEOOOO", "onActivityResult: fileURI " + geller.toString());
 //                            Log.d("VIDEOOOO", "onActivityResult: filepath "+ FilePath);
 
                             ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
                             int bufferSize = 1024;
                             byte[] tempbuff = new byte[bufferSize];
                             int len = 0;
-                            while ((len=in.read(tempbuff))!=-1){
+                            while ((len = in.read(tempbuff)) != -1) {
                                 byteBuffer.write(tempbuff, 0, len);
                             }
                             byte[] vidArray = byteBuffer.toByteArray();
@@ -104,9 +99,9 @@ public class UploadFragment extends Fragment {
                             VideoView videoPreview = binding.videoPreview;
                             videoPreview.setVideoURI(geller);
                             videoPreview.start();
-                        }catch (IOException e){
+                        } catch (IOException e) {
                             e.printStackTrace();
-                        }catch (NullPointerException e){
+                        } catch (NullPointerException e) {
                             e.printStackTrace();
                         }
                     }

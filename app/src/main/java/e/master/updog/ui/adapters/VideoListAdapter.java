@@ -6,21 +6,23 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import e.master.updog.R;
 import e.master.updog.ui.home.HomeFragment;
 import e.master.updog.ui.profile.ProfileFragment;
 import e.master.updog.utilities.VideoFile;
 
 public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.ViewHolder> {
-   List<VideoFile> videoList;
+    List<VideoFile> videoList;
     HomeFragment hfr;
     ProfileFragment pfr;
+
     public VideoListAdapter(List<VideoFile> videoList, HomeFragment hfr) {
         this.hfr = hfr;
         this.videoList = videoList;
@@ -64,8 +66,8 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
-            this.videoTitle= itemView.findViewById(R.id.video_title);
-            this.channelName= itemView.findViewById(R.id.channel_name);
+            this.videoTitle = itemView.findViewById(R.id.video_title);
+            this.channelName = itemView.findViewById(R.id.channel_name);
         }
 
     }

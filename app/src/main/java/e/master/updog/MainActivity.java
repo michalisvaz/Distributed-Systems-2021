@@ -5,10 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -17,20 +13,49 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
+
+import e.master.updog.components.Broker;
+import e.master.updog.utilities.Utilities;
+
 public class MainActivity extends AppCompatActivity {
-    public String channelName = null;
+
+    public String channelName = null, brokerInfo = null;
+    static ArrayList<Broker> brokers = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
+
         Bundle loginData = getIntent().getExtras();
-        if (loginData!=null){
+        if (loginData != null) {
             channelName = (String) loginData.get("channelName");
             Log.d("Main Activity", "onCreate: " + channelName);
+            brokerInfo = (String) loginData.get("brokerInfo");
+            Log.d("Main Activity", "onCreate: " + brokerInfo);
+        }else{
+            moveTaskToBack(true);
+            finish();
         }
-
+        brokers = initBrokerList(brokerInfo);
+        if (brokers == null) {
+            moveTaskToBack(true);
+            finish();
+        }
+        Collections.sort(brokers);
+        for (Broker b : brokers){
+            Log.d("BROKER", b.getString());
+        }
+        moveTaskToBack(true);
+        finish();
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -67,7 +92,41 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    public void signOut(){
+    private static ArrayList<Broker> initBrokerList(String brokerInfo) {
+        if (Utilities.checkBrokerInfo(brokerInfo)) {
+            String ip = brokerInfo.split(";")[0];
+            int port = Integer.parseInt(brokerInfo.split(";")[2]);
+            try {
+                Socket socket = new Socket(ip, port);
+                ObjectOutputStream tempOutStream = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream tempInStream = new ObjectInputStream(socket.getInputStream());
+                tempOutStream.writeUTF("GETBROKERLIST");
+                tempOutStream.flush();
+                ArrayList<Broker> brokers = new ArrayList<>();
+                boolean endFound = false;
+                while (!endFound) {
+                    String current = tempInStream.readUTF();
+                    if (current.equals("FINISHED")) {
+                        endFound = true;
+                    } else {
+                        brokers.add(Utilities.toBroker(current));
+                    }
+                }
+                tempInStream.close();
+                tempOutStream.close();
+                socket.close();
+                Log.d("Main Activity", "Successfully got the brokers");
+                return brokers;
+            } catch (IOException e) {
+                Log.d("Main Activity", "Error getting the brokers");
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public void signOut() {
         Intent login = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(login);
     }

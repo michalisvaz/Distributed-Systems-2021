@@ -7,15 +7,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import e.master.updog.MainActivity;
 import e.master.updog.R;
 import e.master.updog.databinding.FragmentProfileBinding;
@@ -38,21 +39,21 @@ public class ProfileFragment extends Fragment {
 
         myVids = new ArrayList<VideoFile>();
         List<String> hashtags = new ArrayList<String>();
-        myVids.add(new VideoFile("vid1","egw1", hashtags, 1, false));
-        myVids.add(new VideoFile("vid2","egw2", hashtags, 1, false));
-        myVids.add(new VideoFile("vid3","egw3", hashtags, 1, false));
-        myVids.add(new VideoFile("vid4","egw4", hashtags, 1, false));
-        myVids.add(new VideoFile("vid5","egw5", hashtags, 1, false));
-        myVids.add(new VideoFile("vid1","egw1", hashtags, 1, false));
-        myVids.add(new VideoFile("vid2","egw2", hashtags, 1, false));
-        myVids.add(new VideoFile("vid3","egw3", hashtags, 1, false));
-        myVids.add(new VideoFile("vid4","egw4", hashtags, 1, false));
-        myVids.add(new VideoFile("vid5","egw5", hashtags, 1, false));
-        myVids.add(new VideoFile("vid1","egw1", hashtags, 1, false));
-        myVids.add(new VideoFile("vid2","egw2", hashtags, 1, false));
-        myVids.add(new VideoFile("vid3","egw3", hashtags, 1, false));
-        myVids.add(new VideoFile("vid4","egw4", hashtags, 1, false));
-        myVids.add(new VideoFile("vid5","egw5", hashtags, 1, false));
+        myVids.add(new VideoFile("vid1", "egw1", hashtags, 1, false));
+        myVids.add(new VideoFile("vid2", "egw2", hashtags, 1, false));
+        myVids.add(new VideoFile("vid3", "egw3", hashtags, 1, false));
+        myVids.add(new VideoFile("vid4", "egw4", hashtags, 1, false));
+        myVids.add(new VideoFile("vid5", "egw5", hashtags, 1, false));
+        myVids.add(new VideoFile("vid1", "egw1", hashtags, 1, false));
+        myVids.add(new VideoFile("vid2", "egw2", hashtags, 1, false));
+        myVids.add(new VideoFile("vid3", "egw3", hashtags, 1, false));
+        myVids.add(new VideoFile("vid4", "egw4", hashtags, 1, false));
+        myVids.add(new VideoFile("vid5", "egw5", hashtags, 1, false));
+        myVids.add(new VideoFile("vid1", "egw1", hashtags, 1, false));
+        myVids.add(new VideoFile("vid2", "egw2", hashtags, 1, false));
+        myVids.add(new VideoFile("vid3", "egw3", hashtags, 1, false));
+        myVids.add(new VideoFile("vid4", "egw4", hashtags, 1, false));
+        myVids.add(new VideoFile("vid5", "egw5", hashtags, 1, false));
         RecyclerView view = binding.profileGrid;
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 1);
         gridLayoutManager.setOrientation(RecyclerView.VERTICAL);
@@ -69,7 +70,7 @@ public class ProfileFragment extends Fragment {
         });
 
         TextView chname = binding.profileChname;
-        if(((MainActivity) requireActivity()).channelName!=null) {
+        if (((MainActivity) requireActivity()).channelName != null) {
             chname.setText(((MainActivity) requireActivity()).channelName);
         }
         Button signout = binding.signout;
@@ -96,14 +97,14 @@ public class ProfileFragment extends Fragment {
         binding = null;
     }
 
-    public void ShowVid(){
+    public void ShowVid() {
         ConstraintLayout constraintLayout = getView().findViewById(R.id.video_player);
         constraintLayout.setVisibility(View.VISIBLE);
         Button signout = getView().findViewById(R.id.signout);
         signout.setVisibility(View.GONE);
     }
 
-    public void CloseVid(){
+    public void CloseVid() {
         ConstraintLayout constraintLayout = getView().findViewById(R.id.video_player);
         constraintLayout.setVisibility(View.GONE);
         Button signout = getView().findViewById(R.id.signout);
