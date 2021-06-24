@@ -46,12 +46,12 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
 //        holder.videoImg.setImageResource(R.);
         holder.videoTitle.setText(videoList.get(position).getName());
         holder.channelName.setText(videoList.get(position).getChannel());
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pfr.ShowVid();
-            }
-        });
+//        holder.itemView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                pfr.ShowVid();
+//            }
+//        });
     }
 
     @Override

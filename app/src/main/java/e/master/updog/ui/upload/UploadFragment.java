@@ -78,9 +78,11 @@ public class UploadFragment extends Fragment {
                 String onlyName = videoName.getText().toString();
                 String hashtagsString = hashtagz.getText().toString();
                 hashtagsToAdd = new ArrayList<String>();
+                hashtagsString = hashtagsString.replaceAll("\\s+","");
                 for (String htag : hashtagsString.trim().split("#")) {
                     if (htag.length() >= 1){
                         hashtagsToAdd.add(htag);
+                        Log.d("HASHTAG", "*" + htag + "*");
                     }
                 }
                 newVideo.setHashtags(hashtagsToAdd);

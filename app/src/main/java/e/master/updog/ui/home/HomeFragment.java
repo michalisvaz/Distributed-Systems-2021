@@ -48,21 +48,21 @@ public class HomeFragment extends Fragment {
         allChannelNames.add("Mike69");
         allChannelNames.add("JimDeli420");
         allChannelNames.add("BLM3826");
-        ListView view = binding.homeGrid;
-//        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 1);
-//        gridLayoutManager.setOrientation(RecyclerView.VERTICAL);
-//        view.setLayoutManager(gridLayoutManager);
-//        VideoListAdapter adapter = new VideoListAdapter(allVids, this);
-        ArrayAdapter<String> chnameAdapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, allChannelNames);
-        view.setAdapter(chnameAdapter);
-
-        view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                ShowVid();
-                Log.d("when chname clicked", "onItemClick: " + allChannelNames.get(i));
-            }
-        });
+//        ListView view = binding.homeGrid;
+////        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 1);
+////        gridLayoutManager.setOrientation(RecyclerView.VERTICAL);
+////        view.setLayoutManager(gridLayoutManager);
+////        VideoListAdapter adapter = new VideoListAdapter(allVids, this);
+//        ArrayAdapter<String> chnameAdapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, allChannelNames);
+//        view.setAdapter(chnameAdapter);
+//
+//        view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                ShowVid();
+//                Log.d("when chname clicked", "onItemClick: " + allChannelNames.get(i));
+//            }
+//        });
 
         Button cls = binding.videoPlayer.closebtn;
         cls.setOnClickListener(new View.OnClickListener() {
