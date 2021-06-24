@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import e.master.updog.MainActivity;
 import e.master.updog.components.Publisher;
 import e.master.updog.databinding.FragmentUploadBinding;
+import e.master.updog.ui.profile.ProfileFragment;
 import e.master.updog.utilities.VideoFile;
 
 public class UploadFragment extends Fragment {
@@ -126,6 +127,9 @@ public class UploadFragment extends Fragment {
             Publisher pub = ((MainActivity) requireActivity()).publisher;
             pub.setCurrentVideo(videoFile);
             boolean pubToBrokerSuccess = pub.push();
+            if(pubToBrokerSuccess){
+                ProfileFragment.myVids.add(videoFile);
+            }
             return null;
         }
     }

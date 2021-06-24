@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(Void... voids) {
             try {
                 Socket socket = new Socket(ip, port);
+                Log.d("CONNECTED", "Connected to broker!");
                 ObjectOutputStream tempOutStream = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream tempInStream = new ObjectInputStream(socket.getInputStream());
                 tempOutStream.writeUTF("GETBROKERLIST");

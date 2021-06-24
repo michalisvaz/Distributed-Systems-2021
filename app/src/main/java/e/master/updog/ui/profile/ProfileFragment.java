@@ -27,7 +27,7 @@ public class ProfileFragment extends Fragment {
 
     private ProfileViewModel profileViewModel;
     private FragmentProfileBinding binding;
-    private List<VideoFile> myVids;
+    public static List<VideoFile> myVids = new ArrayList<VideoFile>();;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -37,23 +37,6 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        myVids = new ArrayList<VideoFile>();
-        List<String> hashtags = new ArrayList<String>();
-        myVids.add(new VideoFile("vid1", "egw1", hashtags, 1, false));
-        myVids.add(new VideoFile("vid2", "egw2", hashtags, 1, false));
-        myVids.add(new VideoFile("vid3", "egw3", hashtags, 1, false));
-        myVids.add(new VideoFile("vid4", "egw4", hashtags, 1, false));
-        myVids.add(new VideoFile("vid5", "egw5", hashtags, 1, false));
-        myVids.add(new VideoFile("vid1", "egw1", hashtags, 1, false));
-        myVids.add(new VideoFile("vid2", "egw2", hashtags, 1, false));
-        myVids.add(new VideoFile("vid3", "egw3", hashtags, 1, false));
-        myVids.add(new VideoFile("vid4", "egw4", hashtags, 1, false));
-        myVids.add(new VideoFile("vid5", "egw5", hashtags, 1, false));
-        myVids.add(new VideoFile("vid1", "egw1", hashtags, 1, false));
-        myVids.add(new VideoFile("vid2", "egw2", hashtags, 1, false));
-        myVids.add(new VideoFile("vid3", "egw3", hashtags, 1, false));
-        myVids.add(new VideoFile("vid4", "egw4", hashtags, 1, false));
-        myVids.add(new VideoFile("vid5", "egw5", hashtags, 1, false));
         RecyclerView view = binding.profileGrid;
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 1);
         gridLayoutManager.setOrientation(RecyclerView.VERTICAL);
@@ -77,6 +60,7 @@ public class ProfileFragment extends Fragment {
         signout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                myVids = new ArrayList<VideoFile>();
                 ((MainActivity) requireActivity()).signOut();
             }
         });
@@ -110,4 +94,5 @@ public class ProfileFragment extends Fragment {
         Button signout = getView().findViewById(R.id.signout);
         signout.setVisibility(View.VISIBLE);
     }
+
 }
