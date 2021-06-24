@@ -32,7 +32,7 @@
         app:menu="@menu/bottom_nav_menu" />
 
     <include layout="@layout/fragment_video_player"
-        android:id="@+id/video_player_main"
+        android:id="@+id/video_player"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"

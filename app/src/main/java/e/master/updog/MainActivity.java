@@ -90,11 +90,12 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
 
-        Button cls = findViewById(R.id.closebtn);
-        cls.setOnClickListener(new View.OnClickListener() {
+        Button close = findViewById(R.id.closebtn);
+        close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CloseVid();
+                Log.d("CLOSE", "Close clicked");
+                CloseVidmain();
             }
         });
 
@@ -212,28 +213,47 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void unused) {
             if (success){
                 VideoFile searchedVideo = consumer.getTakenVideo();
+                Log.d("WHERE1", searchedVideo.getName());
                 Uri uri = writeVideo(searchedVideo);
+                progressDialog.dismiss();
                 if (uri!=null){
                     ShowVid(uri);
                 }else{
                     Log.d("SearchTask", "onPostExecute: Not Found");
                 }
+                Log.d("AFTER", "finished video");
             }
-            progressDialog.dismiss();
         }
 
 
     }
 
     public Uri writeVideo(VideoFile video){
-        String fileN = "UpDog/" + video.getName();
-        File filename = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), fileN);
+        File dir =  new File(getApplicationInfo().dataDir + "/" + channelName);
+        Log.d("CREATED DIR", dir.getAbsolutePath());
+        try{
+            if(!dir.exists()) {
+                if (dir.mkdirs()) {
+                    Log.d("CREATED DIR", "Success");
+                } else {
+                    Log.d("CREATED DIR", "Failed");
+                }
+            } else{
+                Log.d("CREATED DIR", "Exists");
+            }
+        }catch(Exception e){
+            Log.d("CREATED DIR", "Exception" + e.toString());
+        }
+        String fileN = dir.getAbsolutePath() + "/" + "current.mp4";
+        File filename = new File(fileN);//Environment.getExternalStorageDirectory().getAbsolutePath(), fileN);
+        Log.d("WHERE2", fileN);
         FileOutputStream output = null;
         try {
             output = new FileOutputStream(filename);
             output.write(video.getData(), 0, video.getData().length);
             output.close();
             URI uri = filename.toURI();
+            Log.d("WHERE3",uri.toString());
             return Uri.parse(uri.toString());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -244,15 +264,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ShowVid(Uri uri) {
-        ConstraintLayout constraintLayout = findViewById(R.id.video_player_main);
-        constraintLayout.setVisibility(View.VISIBLE);
-        VideoView videoView = constraintLayout.findViewById(R.id.videoView);
+//        ConstraintLayout constraintLayout = findViewById(R.id.video_player);
+//        constraintLayout.setVisibility(View.VISIBLE);
+        VideoView videoView = findViewById(R.id.videoHome);
+        Log.d("YURI", uri.toString());
+        File tmpFile = new File(uri.getPath());
+        Log.d("YURI", String.valueOf( tmpFile.length()));
         videoView.setVideoURI(uri);
         videoView.start();
     }
 
-    public void CloseVid() {
-        ConstraintLayout constraintLayout = findViewById(R.id.video_player_main);
+    public void CloseVidmain() {
+        ConstraintLayout constraintLayout = findViewById(R.id.video_player);
         constraintLayout.setVisibility(View.GONE);
+//        ConstraintLayout constraintLayout2 = findViewById(R.id.video_player);
+//        constraintLayout2.setVisibility(View.GONE);
     }
 }

@@ -46,6 +46,8 @@ public class UploadFragment extends Fragment {
     private FragmentUploadBinding binding;
     private VideoFile newVideo;
     private EditText videoName;
+    private EditText hashtagz;
+    private ArrayList hashtagsToAdd = null;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -66,16 +68,28 @@ public class UploadFragment extends Fragment {
             }
         });
 
+        videoName = binding.videoName; //TODO maybe needs cleaning and if null
+        hashtagz = binding.hashtags; //TODO maybe needs cleaning and if null
+
         Button upload = binding.uploadbtn;
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String onlyName = videoName.getText().toString();
+                String hashtagsString = hashtagz.getText().toString();
+                hashtagsToAdd = new ArrayList<String>();
+                for (String htag : hashtagsString.trim().split("#")) {
+                    if (htag.length() >= 1){
+                        hashtagsToAdd.add(htag);
+                    }
+                }
+                newVideo.setHashtags(hashtagsToAdd);
+                newVideo.setName(onlyName + ";" + hashtagsString + ".mp4");
                 new UploadTask().execute(newVideo);
                 FlipBtns(false);
             }
         });
 
-        videoName = binding.videoName; //TODO maybe needs cleaning and if null
 
         return root;
     }
@@ -106,7 +120,7 @@ public class UploadFragment extends Fragment {
                             }
                             byte[] vidArray = byteBuffer.toByteArray();
 //                            byte[] vidArray = new byte[(int) VidFile.length()];
-                            newVideo = new VideoFile(videoName.getText().toString(), ((MainActivity) requireActivity()).channelName, new ArrayList<String>(), vidArray.length, false);
+                            newVideo = new VideoFile("", ((MainActivity) requireActivity()).channelName, new ArrayList<String>(), vidArray.length, false);
                             newVideo.setData(vidArray);
                             VideoView videoPreview = binding.videoPreview;
                             videoPreview.setVideoURI(geller);
