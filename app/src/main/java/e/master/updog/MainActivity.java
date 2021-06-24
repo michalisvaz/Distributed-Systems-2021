@@ -1,14 +1,21 @@
 package e.master.updog;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -16,10 +23,14 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
@@ -28,6 +39,7 @@ import e.master.updog.components.Broker;
 import e.master.updog.components.Consumer;
 import e.master.updog.components.Publisher;
 import e.master.updog.utilities.Utilities;
+import e.master.updog.utilities.VideoFile;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -67,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         consumer = new Consumer(ip, port, channelName);
         publisher.init(brokers);
 
+
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -76,6 +89,14 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
+
+        Button cls = findViewById(R.id.closebtn);
+        cls.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CloseVid();
+            }
+        });
 
     }
 
@@ -90,8 +111,8 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
-                //TODO:redirect to home fragment
-                return false;
+                new SearchTask().execute(s);
+                return true;
             }
 
             @Override
@@ -160,5 +181,78 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
 
+    }
+
+    private class SearchTask extends AsyncTask<String, Void, Void>{
+        ProgressDialog progressDialog;
+        boolean success;
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            String searchword = strings[0];
+            if (searchword.startsWith("#")){
+                success = consumer.getByHashtag(searchword);
+            }else {
+                success = consumer.findBroker(brokers,searchword);
+                if(success){
+                    success = consumer.getByChannel(searchword);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(MainActivity.this,
+                    "Please wait...",
+                    "Loading video...");
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            if (success){
+                VideoFile searchedVideo = consumer.getTakenVideo();
+                Uri uri = writeVideo(searchedVideo);
+                if (uri!=null){
+                    ShowVid(uri);
+                }else{
+                    Log.d("SearchTask", "onPostExecute: Not Found");
+                }
+            }
+            progressDialog.dismiss();
+        }
+
+
+    }
+
+    public Uri writeVideo(VideoFile video){
+        String fileN = "UpDog/" + video.getName();
+        File filename = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), fileN);
+        FileOutputStream output = null;
+        try {
+            output = new FileOutputStream(filename);
+            output.write(video.getData(), 0, video.getData().length);
+            output.close();
+            URI uri = filename.toURI();
+            return Uri.parse(uri.toString());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void ShowVid(Uri uri) {
+        ConstraintLayout constraintLayout = findViewById(R.id.video_player_main);
+        constraintLayout.setVisibility(View.VISIBLE);
+        VideoView videoView = constraintLayout.findViewById(R.id.videoView);
+        videoView.setVideoURI(uri);
+        videoView.start();
+    }
+
+    public void CloseVid() {
+        ConstraintLayout constraintLayout = findViewById(R.id.video_player_main);
+        constraintLayout.setVisibility(View.GONE);
     }
 }

@@ -172,7 +172,11 @@ public class Consumer {
 	private class ToBrokerThread extends Thread {
 	
 	}
-	
+
+	public VideoFile getTakenVideo() {
+		return takenVideo;
+	}
+
 	public void writeVideoFile(String folderName) {
 		VideoFileHandler.writeFile(takenVideo, folderName);
 	}

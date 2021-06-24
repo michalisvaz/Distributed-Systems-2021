@@ -6,8 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".ui.upload.UploadFragment">
 
-    <TextView
-        android:id="@+id/text_upload"
+    <EditText
+        android:id="@+id/video_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -15,10 +15,21 @@
         android:layout_marginEnd="8dp"
         android:textAlignment="center"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@id/uploadbtn"
+        android:hint="Add video name and #hashtags"
+        android:inputType="text"
+        app:layout_constraintBottom_toTopOf="@id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/videoPreview" />
+
+    <Button
+        android:id="@+id/choosebtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Choose\nvideo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <Button
         android:id="@+id/uploadbtn"
@@ -27,7 +38,8 @@
         android:text="Upload\nvideo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone"/>
 
     <VideoView
         android:id="@+id/videoPreview"
@@ -35,8 +47,15 @@
         android:layout_height="350dp"
         android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
         android:layout_marginVertical="@dimen/activity_vertical_margin"
-        app:layout_constraintBottom_toTopOf="@id/text_upload"
+        app:layout_constraintBottom_toTopOf="@id/video_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.9"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

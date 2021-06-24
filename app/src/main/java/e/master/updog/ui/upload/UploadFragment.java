@@ -1,6 +1,7 @@
 package e.master.updog.ui.upload;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -21,6 +23,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -31,6 +34,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import e.master.updog.MainActivity;
+import e.master.updog.R;
 import e.master.updog.components.Publisher;
 import e.master.updog.databinding.FragmentUploadBinding;
 import e.master.updog.ui.profile.ProfileFragment;
@@ -41,6 +45,7 @@ public class UploadFragment extends Fragment {
     private UploadViewModel uploadViewModel;
     private FragmentUploadBinding binding;
     private VideoFile newVideo;
+    private EditText videoName;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -50,24 +55,28 @@ public class UploadFragment extends Fragment {
         binding = FragmentUploadBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        Button choosebtn = binding.choosebtn;
+        choosebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent videoPickerIntent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+                videoPickerIntent.setType("video/*");
+//                photoPickerIntent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"video/*"});
+                someActivityResultLauncher.launch(videoPickerIntent);
+            }
+        });
+
         Button upload = binding.uploadbtn;
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-                photoPickerIntent.setType("*/*");
-                photoPickerIntent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"video/*"});
-                someActivityResultLauncher.launch(photoPickerIntent);
+                new UploadTask().execute(newVideo);
+                FlipBtns(false);
             }
         });
 
-        final TextView textView = binding.textUpload;
-        uploadViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
+        videoName = binding.videoName; //TODO maybe needs cleaning and if null
+
         return root;
     }
 
@@ -97,13 +106,14 @@ public class UploadFragment extends Fragment {
                             }
                             byte[] vidArray = byteBuffer.toByteArray();
 //                            byte[] vidArray = new byte[(int) VidFile.length()];
-                            newVideo = new VideoFile("testVideo", ((MainActivity) requireActivity()).channelName, new ArrayList<String>(), vidArray.length, false);
+                            newVideo = new VideoFile(videoName.getText().toString(), ((MainActivity) requireActivity()).channelName, new ArrayList<String>(), vidArray.length, false);
                             newVideo.setData(vidArray);
                             VideoView videoPreview = binding.videoPreview;
                             videoPreview.setVideoURI(geller);
                             videoPreview.start();
+                            FlipBtns(true);
                             //*******add different button (Choose-UpLoad)
-                            new UploadTask().execute(newVideo);
+
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (NullPointerException e) {
@@ -120,6 +130,19 @@ public class UploadFragment extends Fragment {
     }
 
     private class UploadTask extends AsyncTask<VideoFile, Void, Void>{
+    ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(requireActivity(),
+                "Please wait...",
+                "Uploading video...");
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            progressDialog.dismiss();
+        }
 
         @Override
         protected Void doInBackground(VideoFile... videoFiles) {
@@ -131,6 +154,20 @@ public class UploadFragment extends Fragment {
                 ProfileFragment.myVids.add(videoFile);
             }
             return null;
+        }
+    }
+
+    public void FlipBtns(boolean chose) {
+        Button choosebtn = getView().findViewById(R.id.choosebtn);
+        Button uploadbtn = getView().findViewById(R.id.uploadbtn);
+        VideoView videoPreview = getView().findViewById(R.id.videoPreview);
+        EditText videoName = getView().findViewById(R.id.video_name);
+        if (chose) {
+            choosebtn.setVisibility(View.GONE);
+            uploadbtn.setVisibility(View.VISIBLE);
+        }else{
+            choosebtn.setVisibility(View.VISIBLE);
+            uploadbtn.setVisibility(View.GONE);
         }
     }
 
