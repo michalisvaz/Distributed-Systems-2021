@@ -8,31 +8,29 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
-
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import e.master.updog.MainActivity;
 import e.master.updog.R;
 import e.master.updog.components.Publisher;
@@ -48,6 +46,8 @@ public class UploadFragment extends Fragment {
     private EditText videoName;
     private EditText hashtagz;
     private ArrayList hashtagsToAdd = null;
+    int height= 0;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -56,6 +56,10 @@ public class UploadFragment extends Fragment {
 
         binding = FragmentUploadBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+
+
+
 
         Button choosebtn = binding.choosebtn;
         choosebtn.setOnClickListener(new View.OnClickListener() {
@@ -88,7 +92,7 @@ public class UploadFragment extends Fragment {
                 newVideo.setHashtags(hashtagsToAdd);
                 newVideo.setName(onlyName + ";" + hashtagsString + ".mp4");
                 new UploadTask().execute(newVideo);
-                FlipBtns(false);
+
             }
         });
 
@@ -128,7 +132,6 @@ public class UploadFragment extends Fragment {
                             videoPreview.setVideoURI(geller);
                             videoPreview.start();
                             FlipBtns(true);
-                            //*******add different button (Choose-UpLoad)
 
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -158,6 +161,7 @@ public class UploadFragment extends Fragment {
         @Override
         protected void onPostExecute(Void unused) {
             progressDialog.dismiss();
+            FlipBtns(false);
         }
 
         @Override
@@ -178,12 +182,27 @@ public class UploadFragment extends Fragment {
         Button uploadbtn = getView().findViewById(R.id.uploadbtn);
         VideoView videoPreview = getView().findViewById(R.id.videoPreview);
         EditText videoName = getView().findViewById(R.id.video_name);
+        EditText videoHashtags = getView().findViewById(R.id.hashtags);
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((MainActivity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        height = displayMetrics.heightPixels;
+        Log.d("HEIGHT", height+"");
+        int toastY = height*25/100;
+        Log.d("HEIGHTY", toastY+"");
         if (chose) {
             choosebtn.setVisibility(View.GONE);
             uploadbtn.setVisibility(View.VISIBLE);
+            videoPreview.setVisibility(View.VISIBLE);
         }else{
             choosebtn.setVisibility(View.VISIBLE);
             uploadbtn.setVisibility(View.GONE);
+            videoPreview.setVisibility(View.GONE);
+            videoName.setText("");
+            videoHashtags.setText("");
+            Toast toast = Toast.makeText((MainActivity) requireActivity(), "DONE ✔", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0,toastY);
+            toast.show();
         }
     }
 

@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -90,14 +91,6 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
 
-        Button close = findViewById(R.id.closebtn);
-        close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("CLOSE", "Close clicked");
-                CloseVidmain();
-            }
-        });
 
     }
 
@@ -113,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String s) {
                 new SearchTask().execute(s);
+                searchView.clearFocus();
                 return true;
             }
 
@@ -186,17 +180,27 @@ public class MainActivity extends AppCompatActivity {
 
     private class SearchTask extends AsyncTask<String, Void, Void>{
         ProgressDialog progressDialog;
+        TextView textHome = findViewById(R.id.text_home);
         boolean success;
+        String searchMessage;
+        VideoView videoView = findViewById(R.id.videoHome);
 
         @Override
         protected Void doInBackground(String... strings) {
             String searchword = strings[0];
             if (searchword.startsWith("#")){
                 success = consumer.getByHashtag(searchword);
+                searchMessage="No videos were found for this hashtag.";
             }else {
-                success = consumer.findBroker(brokers,searchword);
-                if(success){
-                    success = consumer.getByChannel(searchword);
+                if(!searchword.equals(channelName)){
+                    success = consumer.findBroker(brokers,searchword);
+                    searchMessage="There is no channel with this name.";
+                    if(success){
+                        success = consumer.getByChannel(searchword);
+                        searchMessage="No videos were found for this channel name.";
+                    }
+                }else {
+                    searchMessage="Don't ask for your own videos. Search for another channel name.";
                 }
             }
             return null;
@@ -215,14 +219,18 @@ public class MainActivity extends AppCompatActivity {
                 VideoFile searchedVideo = consumer.getTakenVideo();
                 Log.d("WHERE1", searchedVideo.getName());
                 Uri uri = writeVideo(searchedVideo);
-                progressDialog.dismiss();
+
                 if (uri!=null){
                     ShowVid(uri);
                 }else{
                     Log.d("SearchTask", "onPostExecute: Not Found");
                 }
                 Log.d("AFTER", "finished video");
+            }else {
+                videoView.setVisibility(View.GONE);
+                textHome.setText(searchMessage);
             }
+            progressDialog.dismiss();
         }
 
 
@@ -264,9 +272,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ShowVid(Uri uri) {
-//        ConstraintLayout constraintLayout = findViewById(R.id.video_player);
-//        constraintLayout.setVisibility(View.VISIBLE);
+
         VideoView videoView = findViewById(R.id.videoHome);
+        videoView.setVisibility(View.VISIBLE);
         Log.d("YURI", uri.toString());
         File tmpFile = new File(uri.getPath());
         Log.d("YURI", String.valueOf( tmpFile.length()));
@@ -274,10 +282,4 @@ public class MainActivity extends AppCompatActivity {
         videoView.start();
     }
 
-    public void CloseVidmain() {
-        ConstraintLayout constraintLayout = findViewById(R.id.video_player);
-        constraintLayout.setVisibility(View.GONE);
-//        ConstraintLayout constraintLayout2 = findViewById(R.id.video_player);
-//        constraintLayout2.setVisibility(View.GONE);
-    }
 }

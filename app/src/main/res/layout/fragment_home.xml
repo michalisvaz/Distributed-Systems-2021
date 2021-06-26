@@ -14,10 +14,12 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:textAlignment="center"
-        android:textSize="20sp"
+        android:textSize="24sp"
+        android:text="Search for a channel or a hashtag and watch a video!!!"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 
     <VideoView
@@ -29,15 +31,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <include layout="@layout/fragment_video_player"
-        android:id="@+id/video_player"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:visibility="gone"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

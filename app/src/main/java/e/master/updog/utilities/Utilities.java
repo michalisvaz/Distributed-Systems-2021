@@ -101,6 +101,7 @@ public class Utilities {
 				return false;
 			}
 		} catch (NumberFormatException e) {
+			e.printStackTrace();
 			return false;
 		}
 		String IP = lparts[0];
@@ -115,6 +116,7 @@ public class Utilities {
 					return false;
 				}
 			}catch (NumberFormatException e){
+				e.printStackTrace();
 				return false;
 			}
 		}

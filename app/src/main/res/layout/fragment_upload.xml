@@ -60,13 +60,14 @@
     <VideoView
         android:id="@+id/videoPreview"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
+        android:layout_height="300dp"
         android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
         android:layout_marginVertical="@dimen/activity_vertical_margin"
         app:layout_constraintBottom_toTopOf="@id/video_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
