@@ -22,46 +22,45 @@ import e.master.updog.R;
 import e.master.updog.databinding.FragmentProfileBinding;
 import e.master.updog.ui.adapters.VideoListAdapter;
 import e.master.updog.utilities.VideoFile;
-//TODO: Bill put comments
+
+/**
+ * Here is the fragment of the user's profile.
+ * We take the name that the user gave while loging and we show it here.
+ * After uploading a video the user can see here his uploaded videos with the videolist adapter (see adapters).
+ * Here also the user can sign out of his channel.
+ */
 public class ProfileFragment extends Fragment {
 
-    private ProfileViewModel profileViewModel;
-    private FragmentProfileBinding binding;
+    private FragmentProfileBinding binding; //shortcut for findById for fragments
     public static List<VideoFile> myVids = new ArrayList<VideoFile>();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        profileViewModel =
-                new ViewModelProvider(this).get(ProfileViewModel.class);
 
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+//      here we set the view of the video list which is a recyclerView with a gridLayoutManager
         RecyclerView view = binding.profileGrid;
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 1);
-        gridLayoutManager.setOrientation(RecyclerView.VERTICAL);
+        gridLayoutManager.setOrientation(RecyclerView.VERTICAL); //to show the next video under the previous
         view.setLayoutManager(gridLayoutManager);
         VideoListAdapter adapter = new VideoListAdapter(myVids, this);
         view.setAdapter(adapter);
 
-        Button cls = binding.videoPlayer.closebtn;
-        cls.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                CloseVid();
-            }
-        });
-
+//      here we set the name of the user's channel
         TextView chname = binding.profileChname;
         if (((MainActivity) requireActivity()).channelName != null) {
             chname.setText(((MainActivity) requireActivity()).channelName);
         }
+
+//      here we set the button to signout onClick
         Button signout = binding.signout;
         signout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                myVids = new ArrayList<VideoFile>();
-                ((MainActivity) requireActivity()).signOut();
+                myVids = new ArrayList<VideoFile>(); //init the list for the next user
+                ((MainActivity) requireActivity()).signOut(); //the function to signout is in the MainActivity that this fragment is a part of
             }
         });
 
@@ -72,20 +71,6 @@ public class ProfileFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-    }
-
-    public void ShowVid() {
-        ConstraintLayout constraintLayout = getView().findViewById(R.id.video_player);
-        constraintLayout.setVisibility(View.VISIBLE);
-        Button signout = getView().findViewById(R.id.signout);
-        signout.setVisibility(View.GONE);
-    }
-
-    public void CloseVid() {
-        ConstraintLayout constraintLayout = getView().findViewById(R.id.video_player);
-        constraintLayout.setVisibility(View.GONE);
-        Button signout = getView().findViewById(R.id.signout);
-        signout.setVisibility(View.VISIBLE);
     }
 
 }

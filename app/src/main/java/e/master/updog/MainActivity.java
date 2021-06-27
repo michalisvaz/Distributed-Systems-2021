@@ -38,7 +38,12 @@ import e.master.updog.components.Consumer;
 import e.master.updog.components.Publisher;
 import e.master.updog.utilities.Utilities;
 import e.master.updog.utilities.VideoFile;
-//TODO: Bill put comments
+
+/**
+ * here in the main activity the most serious thing we do is setting the option menus.
+ * we have a menu that we use as a searchbar for the purposes of the exam.
+ * we also have a bottom menu to help the user navigate through the fragments.
+ */
 public class MainActivity extends AppCompatActivity {
 
     public String channelName = null, brokerInfo = null;
@@ -54,14 +59,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Bundle loginData = getIntent().getExtras();
-        if (loginData != null) {
+        if (loginData != null) {    //here we get the data from the login
             channelName = (String) loginData.get("channelName");
             brokerInfo = (String) loginData.get("brokerInfo");
         } else {
             moveTaskToBack(true);
             finish();
         }
-        brokers = initBrokerList(brokerInfo);
+        brokers = initBrokerList(brokerInfo);   //
         if (brokers == null) {
             moveTaskToBack(true);
             finish();
@@ -84,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) { //we set the searchbar
 
         getMenuInflater().inflate(R.menu.searchbarmenu, menu);
         MenuItem menuItem = menu.findItem(R.id.search_icon);
@@ -95,8 +100,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String s) {
                 consumer = new Consumer(null, 0, channelName);
-                new SearchTask().execute(s);
-                searchView.clearFocus();
+                new SearchTask().execute(s); //onSubmit we call the search Async task
+                searchView.clearFocus(); //and we hide the keyboard
                 return true;
             }
 
@@ -108,6 +113,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /*
+        it clears the brokerinfo the user gave on login and get the IP and ports
+     */
     private static ArrayList<Broker> initBrokerList(String brokerInfo) {
         if (Utilities.checkBrokerInfo(brokerInfo)) {
             ip = brokerInfo.split(";")[0];
@@ -128,11 +136,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void signOut() {
+    public void signOut() { //it gets called in the ProfileFragment
         Intent login = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(login);
     }
-
+/*
+    this is the task that starts the connection with the brokers
+ */
     private static class InitBrokerListTask extends AsyncTask<Void, Void, Void> {
         public ArrayList<Broker> brokers = null;
 
@@ -166,6 +176,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /*
+        this is the task that sends the search word in the broker in order to get a video back
+        if the word has a # it searches for hashtags otherwise for channelnames
+        if a video is not found we show in the HomeFragment a message instead of the videoView
+        it also has a progress dialog
+     */
     private class SearchTask extends AsyncTask<String, Void, Void> {
         ProgressDialog progressDialog;
         TextView textHome = findViewById(R.id.text_home);
@@ -203,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Void unused) {
+        protected void onPostExecute(Void unused) { //after the task we store the video and call the showVid or we show a fail message
             if (success) {
                 VideoFile searchedVideo = consumer.getTakenVideo();
                 Uri uri = writeVideo(searchedVideo);
@@ -220,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public Uri writeVideo(VideoFile video) {
+    public Uri writeVideo(VideoFile video) { //stores the video in the device to get the Uri in order to show it later
         File dir = new File(getApplicationInfo().dataDir + "/" + channelName);
         try {
             if (!dir.exists()) {
@@ -252,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
-    public void ShowVid(Uri uri) {
+    public void ShowVid(Uri uri) { //opens the videoView and shows the requested video
         VideoView videoView = findViewById(R.id.videoHome);
         videoView.setVisibility(View.VISIBLE);
         videoView.setVideoURI(uri);

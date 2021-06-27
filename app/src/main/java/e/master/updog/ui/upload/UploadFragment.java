@@ -19,46 +19,50 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-
 import e.master.updog.MainActivity;
 import e.master.updog.R;
 import e.master.updog.components.Publisher;
 import e.master.updog.databinding.FragmentUploadBinding;
 import e.master.updog.ui.profile.ProfileFragment;
 import e.master.updog.utilities.VideoFile;
-//TODO: Bill put comments
+
+/**
+ * This is the most useful of the three fragments.
+ * Here the user can choose from the gallery and upload videos with name and hashtags.
+ * He can also preview the videos before upload them but not in realistic dimentions (more stretched than in actual Homeplayer).
+ */
 public class UploadFragment extends Fragment {
 
-    private UploadViewModel uploadViewModel;
-    private FragmentUploadBinding binding;
+    private FragmentUploadBinding binding; //shortcut for findById for fragments
     private VideoFile newVideo;
     private EditText videoName;
     private EditText hashtagz;
     private ArrayList hashtagsToAdd = null;
-    int height = 0;
+    int height = 0; //we will add screen dimentions here
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        uploadViewModel =
-                new ViewModelProvider(this).get(UploadViewModel.class);
 
         binding = FragmentUploadBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-
+/*
+       here we set the button that opens the gallery to pick a video.
+       we set the picker type only to videos to help the users.
+       we call an activity result launcher to make the picker work.
+*/
         Button choosebtn = binding.choosebtn;
         choosebtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,7 +75,12 @@ public class UploadFragment extends Fragment {
 
         videoName = binding.videoName;
         hashtagz = binding.hashtags;
-
+/*
+        here we set the upload button that sends the video to the server.
+        we store the hashtags without the # and the spaces.
+        the name of the videofile contains also the hashtags.
+        we call a async task that we will explain later.
+ */
         Button upload = binding.uploadbtn;
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +105,11 @@ public class UploadFragment extends Fragment {
         return root;
     }
 
+    /*
+        this is the launcher that opens the videoPicker and
+        after that we get the video's Uri (the path) to set it in the Preview Player.
+
+     */
     ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
@@ -105,10 +119,10 @@ public class UploadFragment extends Fragment {
                         // There are no request codes
                         Intent data = result.getData();
                         try {
-                            Uri geller = data.getData();
+                            Uri geller = data.getData(); //video's path
                             ContentResolver contentResolver = getContext().getContentResolver();
                             InputStream in = contentResolver.openInputStream(geller);
-
+                            //we set the stream to later convert it to byteArray
                             ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
                             int bufferSize = 1024;
                             byte[] tempbuff = new byte[bufferSize];
@@ -118,11 +132,11 @@ public class UploadFragment extends Fragment {
                             }
                             byte[] vidArray = byteBuffer.toByteArray();
                             newVideo = new VideoFile("", ((MainActivity) requireActivity()).channelName, new ArrayList<String>(), vidArray.length, false);
-                            newVideo.setData(vidArray);
+                            newVideo.setData(vidArray); //store the byteArray in the videoFile
                             VideoView videoPreview = binding.videoPreview;
                             videoPreview.setVideoURI(geller);
                             videoPreview.start();
-                            FlipBtns(true);
+                            FlipBtns(true); //change the fragmentView to help the user see what he picked in order then to upload
 
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -139,6 +153,10 @@ public class UploadFragment extends Fragment {
         binding = null;
     }
 
+    /*
+        this is the async task that sends the videoFile to the broker.
+        we also set a progress dialog to inform the user for loading.
+     */
     private class UploadTask extends AsyncTask<VideoFile, Void, Void> {
         ProgressDialog progressDialog;
 
@@ -151,23 +169,27 @@ public class UploadFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void unused) {
-            progressDialog.dismiss();
-            FlipBtns(false);
+            progressDialog.dismiss(); //when the task ended the progress dialog ends
+            FlipBtns(false); //return the fragmentView how it was before the video picking
         }
 
         @Override
         protected Void doInBackground(VideoFile... videoFiles) {
             VideoFile videoFile = videoFiles[0];
             Publisher pub = ((MainActivity) requireActivity()).publisher;
-            pub.setCurrentVideo(videoFile);
-            boolean pubToBrokerSuccess = pub.push();
+            pub.setCurrentVideo(videoFile); //store the videofile
+            boolean pubToBrokerSuccess = pub.push(); //send the file to the broker
             if (pubToBrokerSuccess) {
-                ProfileFragment.myVids.add(videoFile);
+                ProfileFragment.myVids.add(videoFile); //update the profile videolist
             }
             return null;
         }
     }
 
+    /*
+        just a function to change the videoPreview videoView and the choose/upload buttons.
+        also here we reset the editTexts after uploading.
+     */
     public void FlipBtns(boolean chose) {
         Button choosebtn = getView().findViewById(R.id.choosebtn);
         Button uploadbtn = getView().findViewById(R.id.uploadbtn);
@@ -175,6 +197,8 @@ public class UploadFragment extends Fragment {
         EditText videoName = getView().findViewById(R.id.video_name);
         EditText videoHashtags = getView().findViewById(R.id.hashtags);
 
+//      here we store the height of the phone screen in order to set a Toast at 75%.
+//      we use displayMetrics of MainActivity
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((MainActivity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         height = displayMetrics.heightPixels;
@@ -183,13 +207,14 @@ public class UploadFragment extends Fragment {
             choosebtn.setVisibility(View.GONE);
             uploadbtn.setVisibility(View.VISIBLE);
             videoPreview.setVisibility(View.VISIBLE);
-        } else {
+        } else { //if the upload button is clicked
             choosebtn.setVisibility(View.VISIBLE);
             uploadbtn.setVisibility(View.GONE);
             videoPreview.setVisibility(View.GONE);
             videoName.setText("");
             videoHashtags.setText("");
             Toast toast = Toast.makeText((MainActivity) requireActivity(), "DONE ✔", Toast.LENGTH_SHORT);
+            //set the toast in the center of the screen and then set it 25% lower.
             toast.setGravity(Gravity.CENTER, 0, toastY);
             toast.show();
         }
