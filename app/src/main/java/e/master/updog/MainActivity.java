@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
 //        moveTaskToBack(true);
 //        finish();
         publisher = new Publisher(null, channelName, 0);
-        consumer = new Consumer(null, 0, channelName);
         publisher.init(brokers);
 
 
@@ -98,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
+                consumer = new Consumer(null, 0, channelName);
                 new SearchTask().execute(s);
                 searchView.clearFocus();
                 return true;
