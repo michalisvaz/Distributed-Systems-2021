@@ -61,15 +61,6 @@ public class Utilities {
         System.err.println("ERROR: " + str);
     }
 
-    public static void print(HashMap<String, VideoFile> map) {
-        Iterator it = map.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry) it.next();
-            System.out.println("File name: " + pair.getKey() + "\n" + pair.getValue().toString());
-            it.remove();
-        }
-    }
-
     /**
      * Convert a string to a hashtag.
      * For example dog is converted to #dog

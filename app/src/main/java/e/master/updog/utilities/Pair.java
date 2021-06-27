@@ -3,6 +3,13 @@ package e.master.updog.utilities;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * We use this class to keep track of which combinations (Channel, Hashtag) is responsible each Broker.
+ * When a Consumer asks Broker X1 if they have a video with hashtag #yyyy, and X1 doesn't have such a video,
+ * then X1 must redirect the query to another Broker XX. To be sure that XX has a video of hashtag yyyy **that
+ * is not uploaded by the current client**, we need to keep track only of the hashtags for which each broker
+ * is responsible but of the combinations (channel, hashtag).
+ */
 public class Pair implements Serializable {
 
     private String hashtag, channel;
@@ -34,10 +41,6 @@ public class Pair implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Pair pair = (Pair) o;
         return hashtag.equals(pair.hashtag) && channel.equals(pair.channel);
-    }
-
-    public boolean equals(Pair o) {
-        return hashtag.equals(o.hashtag) && channel.equals(o.channel);
     }
 
     @Override

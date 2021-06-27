@@ -15,14 +15,13 @@ import e.master.updog.utilities.VideoFileHandler;
 public class Consumer {
 
     private String IP, brokerIP = null;
-    private String channelName; // whether user is registered or not. won't be used yet
+    private String channelName;
     Socket consSocket = null;
     ObjectOutputStream consOutputStream = null;
     ObjectInputStream consInputStream = null;
     private int port, brokerPort = 0;
     VideoFile takenVideo;
     ArrayList<Integer> relativeVideosPerBroker;
-    // broker port is the port on the Broker, which communicates with the Consumers
 
     /**
      * There will probably be more properties
@@ -37,6 +36,15 @@ public class Consumer {
         relativeVideosPerBroker = new ArrayList<>();
     }
 
+    /**
+     * Takes a list of all the brokers available and a channel name, finds which broker is
+     * responsible for this channel name and sets the variables brokerIP and brokerPort to this broker's
+     * information. Finally it returns true if it found a broker responsible for the channel name specified
+     * and false otherwise.
+     * @param brokers a list of all the existing brokers of our system
+     * @param creator the channel name to check which broker is responsible for it
+     * @return
+     */
     public boolean findBroker(ArrayList<Broker> brokers, String creator) {
         if (brokers == null || brokers.isEmpty()) {
             return false;
@@ -51,6 +59,8 @@ public class Consumer {
                 break;
             }
         }
+        // if the hash value of the channel name was greater than all the other broker's hash values,
+        // then the channel name is matched to the first broker (because we have a clock-like numbering)
         if (!found) {
             this.brokerIP = brokers.get(0).getIp();
             this.brokerPort = brokers.get(0).getPortToConsumers();
@@ -58,18 +68,25 @@ public class Consumer {
         return true;
     }
 
+    /**
+     * Send the broker a request specifying a channel from which the Consumer wants a video
+     * @param creator the channel from which the Consumer wants a video
+     * @return true if you successfully received an actual video, false otherwise
+     */
     public boolean getByChannel(String creator) {
         try {
-            consSocket = new Socket(brokerIP, brokerPort); // connects with broker to announce
-            // existance
-
+            // create necessary sockets and streams
+            consSocket = new Socket(brokerIP, brokerPort);
             consOutputStream = new ObjectOutputStream(consSocket.getOutputStream());
             consInputStream = new ObjectInputStream(consSocket.getInputStream());
 
+            // create and send your message
             String searchedWord = "in:" + creator;
-
             consOutputStream.writeUTF(searchedWord); // consumer sends the searched word
             consOutputStream.flush();
+
+            // get VideoFile chunk by chunk and store it in ArrayList.
+            // Receive data until final piece is found.
             boolean foundFinalPiece = false;
             ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
             while (!foundFinalPiece) {
@@ -82,12 +99,15 @@ public class Consumer {
                     return false;
                 }
             }
+            // close socket and streams
             consInputStream.close();
             consOutputStream.close();
             consSocket.close();
+            // if no actual video was found
             if (chosenVid.get(0).getName().equals("EMPTY")) {
                 return false;
             }
+            // merge the chunks into an actual video
             takenVideo = VideoFileHandler.merge(chosenVid);
             return true;
         } catch (IOException e) {
@@ -96,19 +116,30 @@ public class Consumer {
         }
     }
 
+    /**
+     * Send the broker a request specifying a hashtag from which the Consumer wants a video
+     * @param hashtag the hashtag from which the Consumer wants a video
+     * @return true if you successfully received an actual video, false otherwise
+     */
     public boolean getByHashtag(String hashtag) {
         try {
+            // create sockets and streams
             consSocket = new Socket(brokerIP, brokerPort);
             consOutputStream = new ObjectOutputStream(consSocket.getOutputStream());
             consInputStream = new ObjectInputStream(consSocket.getInputStream());
 
+            // We need both the hashtag and who is searching it to avoid sending to a Consumer their own videos
             String searchedWord = "in:" + hashtag;
             String byWho = "by:" + (channelName == null ? "" : channelName);
-
             consOutputStream.writeUTF(searchedWord); // consumer sends the searched word
             consOutputStream.writeUTF(byWho); // consumer sends his name so that Broker doesn't send his own videos back to the consumer
             consOutputStream.flush();
 
+            // read a code
+            // If code is equal to "VIDEO", you're going to receive a video chunk by chunk
+            // If code is equal to "NOT FOUND", there isn't such a hashtag in the system (or there exists but it
+            // belongs to the consumer asking for it)
+            // Otherwise, the consumer will get a response but from a different broker
             String code = consInputStream.readUTF();
             if (code.equals("VIDEO")) {
                 boolean foundFinalPiece = false;
@@ -120,6 +151,7 @@ public class Consumer {
                         foundFinalPiece = current.isFinal();
                     } catch (ClassNotFoundException e) {
                         System.err.println("Problem with getting the video chunks");
+                        return false;
                     }
                 }
                 takenVideo = VideoFileHandler.merge(chosenVid);
@@ -163,6 +195,10 @@ public class Consumer {
         }
     }
 
+    /**
+     * Choose a random broker for the consumer to talk to
+     * @param brokers the brokers from which to choose
+     */
     public void setRandomBroker(ArrayList<Broker> brokers) {
         int i = new Random().nextInt(brokers.size());
         this.brokerIP = brokers.get(i).getIp();

@@ -34,7 +34,8 @@ public class Publisher {
     }
 
     /**
-     * sets brokerIP and brokerPort
+     * sets brokerIP and brokerPort using hash values. This combination of Ip and port are used so that the
+     * publisher knows which broker to upload their videos to.
      *
      * @param brokers list of brokers. Assume it is sorted
      * @return true if everything went ok, false otherwise
@@ -69,7 +70,7 @@ public class Publisher {
 
     /**
      * Reads from the user a name corresponding to the file which should be uploaded (or CANCEL if the user regrets it)
-     * And then reads the file from the disk
+     * And then reads the file from the disk. This was only used in the first part of the project.
      */
     public void readFile() {
         currentVideo = null;
@@ -94,24 +95,25 @@ public class Publisher {
     }
 
     /**
-     * Send the file to the Broker
+     * Send (upload) the file to the Broker
      *
      * @return true if everything went ok, false if there were problems
      */
     public boolean push() {
 
         try {
-//			System.out.println("Broker Ip: " + brokerIP + " broker port: " + brokerPort);
+            // Create socket and stream
             pubSocket = new Socket(brokerIP, brokerPort);
             pubOutputStream = new ObjectOutputStream(pubSocket.getOutputStream());
-
-            pubOutputStream.writeBoolean(true);
+            pubOutputStream.writeBoolean(true); // this means "I am going to send you a video (chunk by chunk)"
             pubOutputStream.flush();
+            // Split the video to chunks and send it
             ArrayList<VideoFile> result = VideoFileHandler.split(currentVideo);
             for (VideoFile x : result) {
                 pubOutputStream.writeObject(x);
                 pubOutputStream.flush();
             }
+            // close socket and stream
             pubOutputStream.close();
             pubSocket.close();
             return true;
