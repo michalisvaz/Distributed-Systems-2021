@@ -158,19 +158,23 @@ public class Consumer {
             } else if (code.equals("NOT FOUND")) {
                 return false;
             } else {
+                // create sockets and streams to another broker
                 Broker tmp = Utilities.toBroker(code);
                 consSocket = new Socket(tmp.getIp(), tmp.getPortToConsumers());
                 consOutputStream = new ObjectOutputStream(consSocket.getOutputStream());
                 consInputStream = new ObjectInputStream(consSocket.getInputStream());
 
+                // send them your request
                 consOutputStream.writeUTF(searchedWord); // consumer sends the searched word
                 consOutputStream.writeUTF(byWho); // consumer sends his name so that Broker doesn't send his own videos back to the consumer
                 consOutputStream.flush();
 
+                // if the response is anything else except a video, return false
                 code = consInputStream.readUTF();
                 if (!code.equals("VIDEO")) {
                     return false;
                 }
+                // otherwise get the videoFile as you normally would
                 boolean foundFinalPiece = false;
                 ArrayList<VideoFile> chosenVid = new ArrayList<VideoFile>();
                 while (!foundFinalPiece) {
@@ -184,7 +188,7 @@ public class Consumer {
                 }
                 takenVideo = VideoFileHandler.merge(chosenVid);
             }
-
+            // close the socket and the streams
             consInputStream.close();
             consOutputStream.close();
             consSocket.close();

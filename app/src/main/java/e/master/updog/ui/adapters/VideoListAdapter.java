@@ -3,7 +3,6 @@ package e.master.updog.ui.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -43,15 +42,8 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull VideoListAdapter.ViewHolder holder, int position) {
-//        holder.videoImg.setImageResource(R.);
         holder.videoTitle.setText(videoList.get(position).getName());
         holder.channelName.setText(videoList.get(position).getChannel());
-//        holder.itemView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                pfr.ShowVid();
-//            }
-//        });
     }
 
     @Override
@@ -60,7 +52,6 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.View
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView videoImg;
         public TextView videoTitle;
         public TextView channelName;
 

@@ -84,6 +84,12 @@ public class Broker implements Comparable<Broker> {
         return videoFiles;
     }
 
+    /**
+     * Initialize the list of other existing brokers and the HashMap about which Broker has locally
+     * videos for which (channel, hashtag) combinations (this is used to do redirection correctly, see class
+     * Pair for more info)
+     * @param otherBrokers an ArrayList with the other existing brokers
+     */
     public void setOtherBrokers(ArrayList<Broker> otherBrokers) {
         this.otherBrokers = new ArrayList<>();
         for (Broker b : otherBrokers) {
@@ -95,6 +101,8 @@ public class Broker implements Comparable<Broker> {
 
     /**
      * Runs a method to connect with the Publishers and receive data from them, and a method to send data to users
+     * This methods also talk with other brokers when necessary, that is when they need to redirect a query or to
+     * update the brokersToHashtags data structure
      */
     public void runBroker() {
         System.out.println("Running Broker with ip " + ip + " and ports " + portToPublishers + ", " + portToConsumers);
@@ -103,6 +111,9 @@ public class Broker implements Comparable<Broker> {
         sendData();
     }
 
+    /**
+     * Creates and Runs a new Data-receiving Thread (ToPublisherThread)
+     */
     private void receiveData() {
         new Thread("Data-receiving Thread") {
             @Override
@@ -127,6 +138,10 @@ public class Broker implements Comparable<Broker> {
         }.start();
     }
 
+    /**
+     * The job of these threads is to receive videos from Publishers and to communicate with other brokers
+     * to update the brokersToHashtags data structure accordingly each time a new video is added
+     */
     private class ToPublisherThread extends Thread {
         public Socket socket;
         private ObjectInputStream ois;
@@ -145,16 +160,19 @@ public class Broker implements Comparable<Broker> {
         public void run() {
             try {
                 boolean isVideoFile = ois.readBoolean();
-                if (isVideoFile) {
+                if (isVideoFile) { // receive a new video from a Publisher
                     ArrayList<VideoFile> chunks = new ArrayList<VideoFile>();
                     boolean endFound = false;
                     System.out.println("Getting files");
+                    // Get the VideoFile chunk by chunk
                     while (!endFound) {
                         VideoFile chunk = (VideoFile) ois.readObject();
                         chunks.add(chunk);
                         endFound = chunk.isFinal();
                     }
+                    // merge it
                     VideoFile res = VideoFileHandler.merge(chunks);
+                    // put it in the list of your videoFiles (don't keep the video byte array in memory)
                     synchronized (videoFiles) {
                         VideoFileHandler.writeFile(res, System.getProperty("user.dir") + "/Broker" + getIp()
                                 + getPortToPublishers() + getPortToConsumers());
@@ -163,12 +181,14 @@ public class Broker implements Comparable<Broker> {
                     }
                     System.out.println("Successfully merged and saved file");
                     Pair toPut;
+                    // update your local brokersToHashtags
                     synchronized (brokersToHashtags) {
                         for (String htg : res.getHashtags()) {
                             toPut = new Pair(htg, res.getChannel());
                             brokersToHashtags.get(getString()).add(toPut);
                         }
                     }
+                    // send the (updated) brokersToHashtags to other brokers
                     for (Broker br : otherBrokers) {
                         if (br.getString().equals(getString())) {
                             continue;
@@ -186,7 +206,7 @@ public class Broker implements Comparable<Broker> {
                         tmpOutStream.close();
                         tmpObjectOutStream.close();
                     }
-                } else {
+                } else { // receive an updated brokersToHashtags object from another broker
                     Object tmpObject = ois.readObject();
                     if (tmpObject == null) {
                         System.out.println("Something went wrong updating brokers to hashtags HashMap");
@@ -200,6 +220,9 @@ public class Broker implements Comparable<Broker> {
         }
     }
 
+    /**
+     * Creates and Runs a new Data-sending Thread (ToConsumerThread)
+     */
     public void sendData() {
         new Thread("Data-sending Thread") {
             @Override
@@ -224,6 +247,11 @@ public class Broker implements Comparable<Broker> {
         }.start();
     }
 
+    /**
+     * The job of these threads is to talk with the Consumers when a video of a certain creator
+     * or hashtag is requested. These threads may also need to send a list of all the brokers to a
+     * newly connected appNode
+     */
     private class ToConsumerThread extends Thread {
         public Socket socket;
         private ObjectInputStream oins;
@@ -245,15 +273,14 @@ public class Broker implements Comparable<Broker> {
         public void run() {
             try {
                 String searchedWord = oins.readUTF();
-                // If user searched by hashtag
-                if (searchedWord.equals("GETBROKERLIST")) {
+                if (searchedWord.equals("GETBROKERLIST")) { // if a newly-connected AppNode wants to know the brokers
                     for (Broker x : otherBrokers) {
                         oouts.writeUTF(x.getString());
                         oouts.flush();
                     }
                     oouts.writeUTF("FINISHED");
                     oouts.flush();
-                } else if (searchedWord.charAt(3) == '#') {
+                } else if (searchedWord.charAt(3) == '#') { // if user searched by hashtag
                     String byWho = oins.readUTF();
                     // count how many videos not belonging to client, you have with this hashtag
                     int cnt = 0;
@@ -264,6 +291,7 @@ public class Broker implements Comparable<Broker> {
                             cnt += 1;
                         }
                     }
+                    // if you have at least one, send one of them (randomly)
                     if (cnt > 0) {
                         oouts.writeUTF("VIDEO");
                         oouts.flush();
@@ -290,7 +318,7 @@ public class Broker implements Comparable<Broker> {
                             oouts.writeObject(x);
                             oouts.flush();
                         }
-                    } else {
+                    } else { // else check whether any other broker has such a video
                         String where = null;
                         outer:
                         for (String key : brokersToHashtags.keySet()) {
@@ -302,10 +330,12 @@ public class Broker implements Comparable<Broker> {
                                 }
                             }
                         }
+                        // if there exists a video with the wanted hashtag in another broker,
+                        // send the brokers info to the client
                         if (where != null) {
                             oouts.writeUTF(where);
                             oouts.flush();
-                        } else {
+                        } else { // else send that the video was not found
                             oouts.writeUTF("NOT FOUND");
                             oouts.flush();
                         }
@@ -319,6 +349,7 @@ public class Broker implements Comparable<Broker> {
                             maybeToSend.add(vf);
                         }
                     }
+                    // Here there is no chance of having videos from the requested channel in another broker. So:
                     // if there are no videos by specified channel
                     if (maybeToSend.isEmpty()) {
                         VideoFile toSend = new VideoFile("EMPTY", null, new ArrayList<>(), 0, true);
@@ -348,11 +379,20 @@ public class Broker implements Comparable<Broker> {
 
     }
 
+    /**
+     * Compare to another Broker
+     * @param o the other Broker
+     * @return true if their hashValues are the same, false otherwise
+     */
     @Override
     public int compareTo(Broker o) {
         return this.hashValue.compareTo(o.getHashValue());
     }
 
+    /**
+     *
+     * @return a string representation of the broker
+     */
     public String getString() {
         return this.getIp() + ";" + this.getPortToPublishers() + ";" + this.getPortToConsumers();
     }
