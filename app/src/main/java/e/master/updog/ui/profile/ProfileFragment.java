@@ -27,7 +27,7 @@ public class ProfileFragment extends Fragment {
 
     private ProfileViewModel profileViewModel;
     private FragmentProfileBinding binding;
-    public static List<VideoFile> myVids = new ArrayList<VideoFile>();;
+    public static List<VideoFile> myVids = new ArrayList<VideoFile>();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {

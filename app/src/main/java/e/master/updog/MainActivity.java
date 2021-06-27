@@ -5,18 +5,15 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -50,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     static ArrayList<Broker> brokers = null;
     public Publisher publisher;
     public Consumer consumer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,10 +56,8 @@ public class MainActivity extends AppCompatActivity {
         Bundle loginData = getIntent().getExtras();
         if (loginData != null) {
             channelName = (String) loginData.get("channelName");
-            Log.d("Main Activity", "onCreate: " + channelName);
             brokerInfo = (String) loginData.get("brokerInfo");
-            Log.d("Main Activity", "onCreate: " + brokerInfo);
-        }else{
+        } else {
             moveTaskToBack(true);
             finish();
         }
@@ -71,13 +67,10 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
         Collections.sort(brokers);
-        for (Broker b : brokers){
-            Log.d("BROKER", b.getString());
-        }
 //        moveTaskToBack(true);
 //        finish();
-        publisher = new Publisher(ip, channelName, port);
-        consumer = new Consumer(ip, port, channelName);
+        publisher = new Publisher(null, channelName, 0);
+        consumer = new Consumer(null, 0, channelName);
         publisher.init(brokers);
 
 
@@ -112,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String s) {
-                //TODO:here we add the context for the search of the videos
                 return true;
             }
         });
@@ -144,14 +136,13 @@ public class MainActivity extends AppCompatActivity {
         startActivity(login);
     }
 
-    private static class InitBrokerListTask extends AsyncTask<Void , Void, Void>{
+    private static class InitBrokerListTask extends AsyncTask<Void, Void, Void> {
         public ArrayList<Broker> brokers = null;
 
         @Override
         protected Void doInBackground(Void... voids) {
             try {
                 Socket socket = new Socket(ip, port);
-                Log.d("CONNECTED", "Connected to broker!");
                 ObjectOutputStream tempOutStream = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream tempInStream = new ObjectInputStream(socket.getInputStream());
                 tempOutStream.writeUTF("GETBROKERLIST");
@@ -178,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private class SearchTask extends AsyncTask<String, Void, Void>{
+    private class SearchTask extends AsyncTask<String, Void, Void> {
         ProgressDialog progressDialog;
         TextView textHome = findViewById(R.id.text_home);
         boolean success;
@@ -188,19 +179,20 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... strings) {
             String searchword = strings[0];
-            if (searchword.startsWith("#")){
+            if (searchword.startsWith("#")) {
+                consumer.setRandomBroker(brokers);
                 success = consumer.getByHashtag(searchword);
-                searchMessage="No videos were found for this hashtag.";
-            }else {
-                if(!searchword.equals(channelName)){
-                    success = consumer.findBroker(brokers,searchword);
-                    searchMessage="There is no channel with this name.";
-                    if(success){
+                searchMessage = "No videos were found for this hashtag.";
+            } else {
+                if (!searchword.equals(channelName)) {
+                    success = consumer.findBroker(brokers, searchword);
+                    searchMessage = "There is no channel with this name.";
+                    if (success) {
                         success = consumer.getByChannel(searchword);
-                        searchMessage="No videos were found for this channel name.";
+                        searchMessage = "No videos were found for this channel name.";
                     }
-                }else {
-                    searchMessage="Don't ask for your own videos. Search for another channel name.";
+                } else {
+                    searchMessage = "Don't ask for your own videos. Search for another channel name.";
                 }
             }
             return null;
@@ -215,53 +207,45 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void unused) {
-            if (success){
+            if (success) {
                 VideoFile searchedVideo = consumer.getTakenVideo();
-                Log.d("WHERE1", searchedVideo.getName());
                 Uri uri = writeVideo(searchedVideo);
 
-                if (uri!=null){
+                if (uri != null) {
                     ShowVid(uri);
-                }else{
-                    Log.d("SearchTask", "onPostExecute: Not Found");
                 }
-                Log.d("AFTER", "finished video");
-            }else {
+            } else {
                 videoView.setVisibility(View.GONE);
                 textHome.setText(searchMessage);
             }
             progressDialog.dismiss();
         }
 
-
     }
 
-    public Uri writeVideo(VideoFile video){
-        File dir =  new File(getApplicationInfo().dataDir + "/" + channelName);
-        Log.d("CREATED DIR", dir.getAbsolutePath());
-        try{
-            if(!dir.exists()) {
+    public Uri writeVideo(VideoFile video) {
+        File dir = new File(getApplicationInfo().dataDir + "/" + channelName);
+        try {
+            if (!dir.exists()) {
                 if (dir.mkdirs()) {
                     Log.d("CREATED DIR", "Success");
                 } else {
                     Log.d("CREATED DIR", "Failed");
                 }
-            } else{
+            } else {
                 Log.d("CREATED DIR", "Exists");
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.d("CREATED DIR", "Exception" + e.toString());
         }
         String fileN = dir.getAbsolutePath() + "/" + "current.mp4";
         File filename = new File(fileN);//Environment.getExternalStorageDirectory().getAbsolutePath(), fileN);
-        Log.d("WHERE2", fileN);
         FileOutputStream output = null;
         try {
             output = new FileOutputStream(filename);
             output.write(video.getData(), 0, video.getData().length);
             output.close();
             URI uri = filename.toURI();
-            Log.d("WHERE3",uri.toString());
             return Uri.parse(uri.toString());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -272,12 +256,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ShowVid(Uri uri) {
-
         VideoView videoView = findViewById(R.id.videoHome);
         videoView.setVisibility(View.VISIBLE);
-        Log.d("YURI", uri.toString());
-        File tmpFile = new File(uri.getPath());
-        Log.d("YURI", String.valueOf( tmpFile.length()));
         videoView.setVideoURI(uri);
         videoView.start();
     }

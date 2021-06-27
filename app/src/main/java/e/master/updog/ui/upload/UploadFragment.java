@@ -19,11 +19,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -31,6 +26,12 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+
 import e.master.updog.MainActivity;
 import e.master.updog.R;
 import e.master.updog.components.Publisher;
@@ -46,7 +47,7 @@ public class UploadFragment extends Fragment {
     private EditText videoName;
     private EditText hashtagz;
     private ArrayList hashtagsToAdd = null;
-    int height= 0;
+    int height = 0;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -56,9 +57,6 @@ public class UploadFragment extends Fragment {
 
         binding = FragmentUploadBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
-
-
 
 
         Button choosebtn = binding.choosebtn;
@@ -82,9 +80,9 @@ public class UploadFragment extends Fragment {
                 String onlyName = videoName.getText().toString();
                 String hashtagsString = hashtagz.getText().toString();
                 hashtagsToAdd = new ArrayList<String>();
-                hashtagsString = hashtagsString.replaceAll("\\s+","");
+                hashtagsString = hashtagsString.replaceAll("\\s+", "");
                 for (String htag : hashtagsString.trim().split("#")) {
-                    if (htag.length() >= 1){
+                    if (htag.length() >= 1) {
                         hashtagsToAdd.add(htag);
                         Log.d("HASHTAG", "*" + htag + "*");
                     }
@@ -148,14 +146,14 @@ public class UploadFragment extends Fragment {
         binding = null;
     }
 
-    private class UploadTask extends AsyncTask<VideoFile, Void, Void>{
-    ProgressDialog progressDialog;
+    private class UploadTask extends AsyncTask<VideoFile, Void, Void> {
+        ProgressDialog progressDialog;
 
         @Override
         protected void onPreExecute() {
             progressDialog = ProgressDialog.show(requireActivity(),
-                "Please wait...",
-                "Uploading video...");
+                    "Please wait...",
+                    "Uploading video...");
         }
 
         @Override
@@ -170,7 +168,7 @@ public class UploadFragment extends Fragment {
             Publisher pub = ((MainActivity) requireActivity()).publisher;
             pub.setCurrentVideo(videoFile);
             boolean pubToBrokerSuccess = pub.push();
-            if(pubToBrokerSuccess){
+            if (pubToBrokerSuccess) {
                 ProfileFragment.myVids.add(videoFile);
             }
             return null;
@@ -187,21 +185,21 @@ public class UploadFragment extends Fragment {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((MainActivity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         height = displayMetrics.heightPixels;
-        Log.d("HEIGHT", height+"");
-        int toastY = height*25/100;
-        Log.d("HEIGHTY", toastY+"");
+        Log.d("HEIGHT", height + "");
+        int toastY = height * 25 / 100;
+        Log.d("HEIGHTY", toastY + "");
         if (chose) {
             choosebtn.setVisibility(View.GONE);
             uploadbtn.setVisibility(View.VISIBLE);
             videoPreview.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             choosebtn.setVisibility(View.VISIBLE);
             uploadbtn.setVisibility(View.GONE);
             videoPreview.setVisibility(View.GONE);
             videoName.setText("");
             videoHashtags.setText("");
             Toast toast = Toast.makeText((MainActivity) requireActivity(), "DONE ✔", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER, 0,toastY);
+            toast.setGravity(Gravity.CENTER, 0, toastY);
             toast.show();
         }
     }
