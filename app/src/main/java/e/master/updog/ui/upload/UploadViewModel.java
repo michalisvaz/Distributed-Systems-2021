@@ -3,7 +3,7 @@ package e.master.updog.ui.upload;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
+//TODO: Bill put comments
 public class UploadViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;

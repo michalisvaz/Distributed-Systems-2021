@@ -38,7 +38,7 @@ import e.master.updog.components.Consumer;
 import e.master.updog.components.Publisher;
 import e.master.updog.utilities.Utilities;
 import e.master.updog.utilities.VideoFile;
-
+//TODO: Bill put comments
 public class MainActivity extends AppCompatActivity {
 
     public String channelName = null, brokerInfo = null;
@@ -67,11 +67,9 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
         Collections.sort(brokers);
-//        moveTaskToBack(true);
-//        finish();
+
         publisher = new Publisher(null, channelName, 0);
         publisher.init(brokers);
-
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each

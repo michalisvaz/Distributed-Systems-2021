@@ -16,7 +16,7 @@ import e.master.updog.R;
 import e.master.updog.ui.home.HomeFragment;
 import e.master.updog.ui.profile.ProfileFragment;
 import e.master.updog.utilities.VideoFile;
-
+//TODO: Bill put comments
 public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.ViewHolder> {
     List<VideoFile> videoList;
     HomeFragment hfr;

@@ -22,7 +22,7 @@ import e.master.updog.R;
 import e.master.updog.databinding.FragmentProfileBinding;
 import e.master.updog.ui.adapters.VideoListAdapter;
 import e.master.updog.utilities.VideoFile;
-
+//TODO: Bill put comments
 public class ProfileFragment extends Fragment {
 
     private ProfileViewModel profileViewModel;
@@ -65,13 +65,6 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-//        final TextView textView = binding.textProfile;
-//        profileViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-//            @Override
-//            public void onChanged(@Nullable String s) {
-//                textView.setText(s);
-//            }
-//        });
         return root;
     }
 

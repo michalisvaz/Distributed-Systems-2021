@@ -38,7 +38,7 @@ import e.master.updog.components.Publisher;
 import e.master.updog.databinding.FragmentUploadBinding;
 import e.master.updog.ui.profile.ProfileFragment;
 import e.master.updog.utilities.VideoFile;
-
+//TODO: Bill put comments
 public class UploadFragment extends Fragment {
 
     private UploadViewModel uploadViewModel;
@@ -65,13 +65,12 @@ public class UploadFragment extends Fragment {
             public void onClick(View view) {
                 Intent videoPickerIntent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
                 videoPickerIntent.setType("video/*");
-//                photoPickerIntent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"video/*"});
                 someActivityResultLauncher.launch(videoPickerIntent);
             }
         });
 
-        videoName = binding.videoName; //TODO maybe needs cleaning and if null
-        hashtagz = binding.hashtags; //TODO maybe needs cleaning and if null
+        videoName = binding.videoName;
+        hashtagz = binding.hashtags;
 
         Button upload = binding.uploadbtn;
         upload.setOnClickListener(new View.OnClickListener() {
@@ -94,7 +93,6 @@ public class UploadFragment extends Fragment {
             }
         });
 
-
         return root;
     }
 
@@ -110,10 +108,6 @@ public class UploadFragment extends Fragment {
                             Uri geller = data.getData();
                             ContentResolver contentResolver = getContext().getContentResolver();
                             InputStream in = contentResolver.openInputStream(geller);
-//                            String FilePath = geller.getPath();
-//                            File VidFile = new File(FilePath);
-                            Log.d("VIDEOOOO", "onActivityResult: fileURI " + geller.toString());
-//                            Log.d("VIDEOOOO", "onActivityResult: filepath "+ FilePath);
 
                             ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
                             int bufferSize = 1024;
@@ -123,7 +117,6 @@ public class UploadFragment extends Fragment {
                                 byteBuffer.write(tempbuff, 0, len);
                             }
                             byte[] vidArray = byteBuffer.toByteArray();
-//                            byte[] vidArray = new byte[(int) VidFile.length()];
                             newVideo = new VideoFile("", ((MainActivity) requireActivity()).channelName, new ArrayList<String>(), vidArray.length, false);
                             newVideo.setData(vidArray);
                             VideoView videoPreview = binding.videoPreview;
@@ -185,9 +178,7 @@ public class UploadFragment extends Fragment {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((MainActivity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         height = displayMetrics.heightPixels;
-        Log.d("HEIGHT", height + "");
         int toastY = height * 25 / 100;
-        Log.d("HEIGHTY", toastY + "");
         if (chose) {
             choosebtn.setVisibility(View.GONE);
             uploadbtn.setVisibility(View.VISIBLE);
