@@ -1,12 +1,8 @@
 # Project in Distributed Systems
 
-## Maybe usefull
+In this project for the course "Distributed Systems" of AUEB's Informatics Department we created a distributed system where users could upload videos and watch other users' videos through a mobile (Android) application. Users are able to search videos by hashtag or by channel name of the uploader.
 
-* xuggler (uncompress, modify, recompress media files (eg mp4 files))
+The project consisted of two phases:
 
-
-* profile with list of videos and sign out -almost done
-* profile_grid is local (user sees his videos there) -tha doume
-* in login add editText for broker ip like brokers.txt thing -egw
-* learn how to stream video inapp -deli
-* video capture
+* In the first phase we had to implement a framework which we would use in the second phase to send and receive videos. This was done by creating some brokers which communicated with the the clients and between themselves and which stored the users' videos. We also created the framework for the client nodes of our system to send and search videos. This was done with socket communication between clients and brokers.
+* In the second phase we created an android application where the user could login and upload their videos or search other users' videos and watch them. To do so we used the framework created in the first part of the project.
